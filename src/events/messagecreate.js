@@ -1,215 +1,267 @@
+const processAutomod =
+    require("../automod/processMessage");
+
+const dispatcher =
+    require("../dispatcher/dispatcher");
+
+const discordBrain =
+    require("../discord/discordBrain");
+
 const {
-    PermissionFlagsBits,
-    EmbedBuilder
-} = require('discord.js');
+    getPrefix
+} = require("../discord/prefixManager");
 
-const fs = require('fs');
-const path = require('path');
+async function isReplyToBot(
+    message,
+    botId
+)
+{
+    const messageId =
+        message.reference?.messageId;
 
-const automodPath = path.join(__dirname, '../data/automod.json');
-const logsPath = path.join(__dirname, '../config/logs.json');
+    if (!messageId)
+        return false;
 
-const spamCache = new Map();
+    try
+    {
+        const repliedMessage =
+            await message.channel.messages.fetch(
+                messageId
+            );
+
+        return (
+            repliedMessage.author.id ===
+            botId
+        );
+    }
+    catch (error)
+    {
+        console.error(
+            "[Message Dispatcher] Failed to fetch replied message:",
+            error
+        );
+
+        return false;
+    }
+}
+
+function startTyping(channel)
+{
+    let active =
+        true;
+
+    const sendTyping = () =>
+    {
+        if (!active)
+            return;
+
+        channel.sendTyping()
+            .catch(() => {});
+    };
+
+    sendTyping();
+
+    const interval =
+        setInterval(
+            sendTyping,
+            8000
+        );
+
+    interval.unref?.();
+
+    return () =>
+    {
+        active =
+            false;
+
+        clearInterval(
+            interval
+        );
+    };
+}
 
 module.exports = {
-    name: 'messageCreate',
+    name:
+        "messageCreate",
 
-    async execute(message) {
+    async execute(message)
+    {
+        if (message.author.bot)
+            return;
 
-        if (!message.guild) return;
-        if (message.author.bot) return;
+        if (!message.guild)
+            return;
 
-        let automodData = {};
+        /*
+        --------------------------------
+        Identify Theaa interactions
+        --------------------------------
+        */
 
-        if (fs.existsSync(automodPath)) {
-            automodData = JSON.parse(
-                fs.readFileSync(automodPath, 'utf8')
+        const botId =
+            message.client.user.id;
+
+        const prefix =
+            getPrefix(
+                message.guild.id
             );
-        }
 
-        const settings = automodData[message.guild.id];
+        const mentioned =
+            message.mentions.users.has(
+                botId
+            );
 
-        if (!settings) return;
+        const repliedToBot =
+            await isReplyToBot(
+                message,
+                botId
+            );
+
+        const isPrefixCommand =
+            message.content.startsWith(
+                prefix
+            );
+
+        const isBotInteraction =
+            isPrefixCommand ||
+            mentioned ||
+            repliedToBot;
+
+        /*
+        --------------------------------
+        AutoMod runs before routing
+
+        Direct Theaa interactions still
+        pass link/invite/mention checks,
+        but do not count as spam.
+        --------------------------------
+        */
+
+        const blocked =
+            await processAutomod(
+                message,
+                {
+                    skipSpam:
+                        isBotInteraction
+                }
+            );
+
+        if (blocked)
+            return;
 
         if (
-            message.member.permissions.has(PermissionFlagsBits.Administrator) ||
-            message.member.permissions.has(PermissionFlagsBits.ManageMessages)
-        ) return;
+            !isPrefixCommand &&
+            !mentioned &&
+            !repliedToBot
+        )
+        {
+            return;
+        }
 
-        const logsData = fs.existsSync(logsPath)
-            ? JSON.parse(fs.readFileSync(logsPath, 'utf8'))
-            : {};
+        /*
+        --------------------------------
+        Prepare message content
+        --------------------------------
+        */
 
-        const logChannel =
-            message.guild.channels.cache.get(
-                logsData[message.guild.id]
+        let content =
+            message.content;
+
+        if (isPrefixCommand)
+        {
+            content =
+                content
+                    .slice(
+                        prefix.length
+                    )
+                    .trim();
+        }
+        else
+        {
+            content =
+                content
+                    .replace(
+                        new RegExp(
+                            `<@!?${botId}>`,
+                            "g"
+                        ),
+                        ""
+                    )
+                    .trim();
+        }
+
+        if (!content)
+        {
+            content =
+                "Hello!";
+        }
+
+        const stopTyping =
+            startTyping(
+                message.channel
             );
 
-        async function punish(feature, reason) {
-
-            const content = message.content;
-
-            await message.delete().catch(() => {});
-
-            const warning = await message.channel.send({
-                content: `${message.author}, ${reason}`
-            });
-
-            setTimeout(() => {
-                warning.delete().catch(() => {});
-            }, 5000);
-
-            if (logChannel) {
-
-                const embed = new EmbedBuilder()
-                    .setColor('Red')
-                    .setTitle(`🚨 AutoMod | ${feature}`)
-                    .addFields(
-                        {
-                            name: 'User',
-                            value: `${message.author}`,
-                            inline: true
-                        },
-                        {
-                            name: 'Channel',
-                            value: `${message.channel}`,
-                            inline: true
-                        },
-                        {
-                            name: 'Message',
-                            value:
-                                content.length > 1024
-                                    ? content.slice(0, 1021) + '...'
-                                    : content
-                        }
-                    )
-                    .setTimestamp()
-                    .setFooter({
-                        text: message.guild.name,
-                        iconURL: message.guild.iconURL()
-                    });
-
-                await logChannel.send({
-                    embeds: [embed]
+        try
+        {
+            const discordContext =
+                await discordBrain.getContext({
+                    message
                 });
 
-            }
+            const context = {
+                guildId:
+                    message.guild.id,
 
+                userId:
+                    message.author.id,
+
+                username:
+                    message.member?.displayName ||
+                    message.author.username,
+
+                channelId:
+                    message.channel.id,
+
+                channelName:
+                    message.channel.name ||
+                    "unknown",
+
+                botName:
+                    message.client.user.username,
+
+                prefix,
+
+                message:
+                    content,
+
+                discordContext
+            };
+
+            await dispatcher({
+                message,
+                context
+            });
         }
+        catch (error)
+        {
+            console.error(
+                "[Message Dispatcher]",
+                error
+            );
 
-        /* ---------------- Anti Invites ---------------- */
+            await message.reply({
+                content:
+                    "Something went wrong while talking to Theaa.",
 
-        if (settings.invites) {
-
-            const inviteRegex =
-                /(discord\.gg\/|discord\.com\/invite\/)[A-Za-z0-9-]+/i;
-
-            if (inviteRegex.test(message.content)) {
-
-                return punish(
-                    'Invite Deleted',
-                    'invite links are not allowed in this server.'
-                );
-
-            }
-
+                allowedMentions: {
+                    repliedUser:
+                        false
+                }
+            }).catch(() => {});
         }
-
-        /* ---------------- Anti Links ---------------- */
-
-        if (settings.links) {
-
-            const linkRegex =
-                /(https?:\/\/|www\.|[a-zA-Z0-9-]+\.(com|net|org|gg|io|co|me|xyz))/i;
-
-            if (linkRegex.test(message.content)) {
-
-                return punish(
-                    'Link Deleted',
-                    'links are not allowed in this server.'
-                );
-
-            }
-
+        finally
+        {
+            stopTyping();
         }
-
-        /* ---------------- Anti Mass Mentions ---------------- */
-
-        if (settings.mentions) {
-
-            const userMentions =
-                (message.content.match(/<@!?\d+>/g) || []).length;
-
-            const roleMentions =
-                (message.content.match(/<@&\d+>/g) || []).length;
-
-            const everyoneMentions =
-                (message.content.match(/@(everyone|here)/g) || []).length;
-
-            const mentionCount =
-                userMentions +
-                roleMentions +
-                everyoneMentions;
-
-            if (mentionCount >= 5) {
-
-                return punish(
-                    'Mass Mentions',
-                    'mass mentioning is not allowed in this server.'
-                );
-
-            }
-
-        }
-
-        /* ---------------- Anti Everyone ---------------- */
-
-        if (settings.everyone) {
-
-            if (message.mentions.everyone) {
-
-                return punish(
-                    'Everyone Mention',
-                    '@everyone and @here are not allowed in this server.'
-                );
-
-            }
-
-        }
-                /* ---------------- Anti Spam ---------------- */
-
-        if (settings.spam) {
-
-            const userId = message.author.id;
-
-            if (!spamCache.has(userId)) {
-                spamCache.set(userId, []);
-            }
-
-            const timestamps = spamCache.get(userId);
-
-            timestamps.push(Date.now());
-
-            while (
-                timestamps.length &&
-                timestamps[0] < Date.now() - 5000
-            ) {
-                timestamps.shift();
-            }
-
-            if (timestamps.length >= 5) {
-
-                spamCache.set(userId, []);
-
-                return punish(
-                    'Spam Detected',
-                    'please stop spamming.'
-                );
-
-            }
-
-        }
-
     }
-
 };

@@ -142,10 +142,26 @@ This reflects the repository inspected on 2026-07-24. Recheck before editing.
 
 ## Message events
 
-- `src/events/messagecreate.js`
-- `src/events/aiMessage.js`
+- `src/events/messagecreate.js` — the only registered `messageCreate` event
+- `src/automod/processMessage.js` — reusable automod processor called before command and AI routing
 
-Potential risk: both may listen to `messageCreate` and process one message twice. Verify before routing work.
+Current controlled flow:
+
+```text
+Discord message
+      ↓
+Ignore bots and DMs
+      ↓
+Detect prefix, bot mention, or reply
+      ↓
+Run AutoMod
+      ↓
+Blocked? Stop processing
+      ↓
+Command or AI dispatcher
+```
+
+Direct interactions with Theaa skip only the spam counter. Invite, link, mass-mention, and everyone checks remain active.
 
 # 6. Dependencies
 
@@ -259,6 +275,7 @@ Real guild, channel, user, prefix, and moderation data is tracked publicly. Repl
 | `src/handlers/commandHandler.js` | Load slash commands | Intent classification |
 | `src/handlers/eventHandler.js` | Load events | Feature implementations |
 | `src/events/` | Receive and forward Discord events | Large action logic |
+| `src/automod/processMessage.js` | Check messages before routing and report whether they were blocked | AI and command routing |
 | `src/router/commandRegistry.js` | Discover commands/actions | Discord side effects |
 | `src/router/messageRouter.js` | Route command input | Provider API code |
 | `src/router/executeCommand.js` | Invoke verified interface | Intent guessing |
@@ -278,8 +295,8 @@ Update this registry whenever responsibilities change.
 
 # 10. Known Risks
 
-- [ ] Possible duplicate `messageCreate` handling
-- [ ] Prefix and AI routing may both respond
+- [x] Duplicate `messageCreate` handling removed
+- [x] Prefix and AI routing now share one controlled event flow
 - [ ] Commands may mix parsing, validation, execution, and replies
 - [ ] Memory resets on restart
 - [ ] Memory may be scoped too broadly
@@ -309,8 +326,8 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 ## Milestone A — Audit and reusable action foundation
 
-- [ ] Document exact message flow
-- [ ] Verify duplicate processing
+- [x] Document exact message flow
+- [x] Verify and remove duplicate processing
 - [ ] Inventory commands and dependencies
 - [ ] Define shared action contract
 - [ ] Add shared permission checks
@@ -323,6 +340,72 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-24 — Single message dispatcher and controlled AutoMod flow
+
+**Status:** Complete and manually verified.
+
+### User-visible behavior
+
+- Every server message enters one `messageCreate` listener.
+- Normal messages without a prefix, mention, or reply receive no response.
+- Prefix commands continue to work.
+- Bot mentions and replies continue to work.
+- Theaa displays typing status while processing.
+- AutoMod runs before command and AI routing.
+- AutoMod-blocked messages do not reach the dispatcher.
+- Direct Theaa interactions do not trigger the spam counter.
+- Invite, link, mass-mention, and everyone rules still apply to Theaa interactions.
+
+### Files created
+
+- `src/automod/processMessage.js` — reusable AutoMod processor returning whether processing should stop.
+
+### Files changed
+
+- `src/events/messagecreate.js` — became the single controlled message event.
+- `ROADMAP.md` — recorded dispatcher milestone progress.
+- `PROJECT_STATE.md` — recorded architecture, behavior, tests, and limitations.
+
+### Files deleted
+
+- `src/events/aiMessage.js` — removed because its behavior was merged into the main message event.
+
+### Verification
+
+- Syntax checks passed for `processMessage.js` and `messagecreate.js`.
+- Only one `messageCreate` event remains.
+- Normal unmentioned messages receive no response.
+- Prefix avatar works.
+- Mention-based avatar works.
+- Reply-based avatar works.
+- Each request receives one response.
+- Theaa interactions are no longer deleted by the spam rule.
+
+### Regression checks
+
+- Shared avatar output preserved.
+- Typing status preserved.
+- AutoMod still runs before routing.
+- Administrator and Manage Messages exemptions preserved.
+
+### Limitations
+
+- AutoMod configuration is still read synchronously from JSON.
+- Spam tracking remains in memory and resets when the bot restarts.
+- Automated tests have not yet been added.
+
+### Git
+
+- Branch: `feature/single-message-dispatcher`
+- Commit: `Unify message dispatch and automod flow`
+- Pull request: not created
+- Merged: no
+
+### Next recommendation
+
+- Feature: auto-generated help command.
+- Reason: the current help output is manually maintained and does not reflect all registered commands.
 
 ## 2026-07-24 — Shared avatar action, deterministic routing, and typing indicator
 

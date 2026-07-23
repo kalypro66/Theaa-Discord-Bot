@@ -293,10 +293,10 @@ Add:
 
 # Phase 4 — Main Message Dispatcher
 
-- [ ] One message dispatcher
-- [ ] Prevent double responses
-- [ ] Prefix detection
-- [ ] Mention and reply detection
+- [x] One message dispatcher
+- [x] Prevent double responses from separate message listeners
+- [x] Prefix detection
+- [x] Mention and reply detection
 - [ ] Configured AI channels
 - [ ] Disabled channels
 - [ ] Safe DM behavior
@@ -469,8 +469,8 @@ Add:
 
 ## Milestone A — Audit and reusable action foundation
 
-1. [ ] Document current execution flow
-2. [ ] Verify duplicate message handling
+1. [x] Document current execution flow
+2. [x] Verify and remove duplicate message handling
 3. [ ] Inventory every command and dependency
 4. [ ] Define shared action contract
 5. [ ] Add shared permission and hierarchy validation
