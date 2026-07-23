@@ -90,7 +90,7 @@ Approved order:
 - [ ] Audit command handler, event handler, registry, router, executor, and AI message flow
 - [ ] Detect duplicate `messageCreate` processing
 - [ ] Define command metadata
-- [ ] Define standard action input and result
+- [~] Define standard action input and result — avatar reference implementation complete
 - [ ] Separate parsing, validation, execution, and reply formatting
 - [ ] Add user, role, channel, message, and duration resolvers
 - [ ] Add permission and role-hierarchy checks
@@ -99,7 +99,7 @@ Approved order:
 - [ ] Add audit logging
 - [ ] Add consistent errors
 - [ ] Auto-generate help from command metadata
-- [ ] Preserve slash and prefix compatibility
+- [~] Preserve slash and prefix compatibility — verified for avatar
 
 Definition of success: one action can be called by slash, prefix, natural language, future dashboard, or automation without duplicated Discord logic.
 
@@ -310,7 +310,7 @@ Add:
 - [ ] Entity extraction
 - [ ] Destructive and ambiguity flags
 - [ ] Confirmation rules
-- [ ] Deterministic obvious-command detection
+- [~] Deterministic obvious-command detection — local routing prototype added
 - [ ] AI fallback classification
 - [ ] Conversation, question, Discord action, memory, reminder, and attachment detection
 - [ ] False-command regression tests
@@ -335,7 +335,7 @@ Example:
 First actions:
 
 - [ ] Server owner and member/channel counts
-- [ ] Avatar, banner, and user information
+- [~] Avatar complete; banner and user information remain
 - [ ] Lock and unlock
 - [ ] Timeout and warn
 - [ ] Ban with confirmation
@@ -366,7 +366,7 @@ Add:
 
 - [ ] Provider health, timeout, retry, fallback, rate-limit, token, and cost tracking
 - [ ] Configurable model priority
-- [ ] Typing indicators and streaming
+- [~] Typing indicator added; streaming remains
 - [ ] Stable personality
 - [ ] Server, user, channel, and reply context
 - [ ] Know when not to answer
@@ -474,11 +474,11 @@ Add:
 3. [ ] Inventory every command and dependency
 4. [ ] Define shared action contract
 5. [ ] Add shared permission and hierarchy validation
-6. [ ] Convert `avatar` or `serverinfo` as the reference action
-7. [ ] Preserve slash and prefix behavior
+6. [x] Convert `avatar` as the reference action
+7. [x] Preserve slash and prefix behavior for the avatar reference action
 8. [ ] Auto-generate help
 9. [ ] Begin Core Command Parity
-10. [ ] Add natural-language routing only to verified actions
+10. [~] Natural-language routing verified for avatar; remaining actions require conversion
 
 # Completion Report
 

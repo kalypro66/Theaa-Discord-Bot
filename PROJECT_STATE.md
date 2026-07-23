@@ -182,6 +182,9 @@ Legend:
 - [x] Command registry prototype
 - [x] Message router prototype
 - [x] Command executor prototype
+- [~] Shared action contract — avatar reference implementation
+- [~] Deterministic local natural-language routing
+- [x] Typing indicator for mention, reply, and prefix processing
 
 ## Utility
 
@@ -193,7 +196,7 @@ Legend:
 
 - [x] Server info
 - [x] User info
-- [x] Avatar
+- [x] Avatar — slash, prefix, and natural-language inputs share one embed action
 - [x] Banner
 
 ## Moderation
@@ -312,8 +315,8 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [ ] Define shared action contract
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
-- [ ] Convert `avatar` or `serverinfo` as the reference action
-- [ ] Preserve slash and prefix behavior
+- [x] Convert `avatar` as the reference action
+- [x] Preserve slash and prefix behavior for avatar
 - [ ] Auto-generate help
 - [ ] Begin Core Command Parity
 
@@ -321,9 +324,103 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 Add new entries at the top.
 
+## 2026-07-24 — Shared avatar action, deterministic routing, and typing indicator
+
+**Status:** Complete and manually verified.
+
+### User-visible behavior
+
+- `/avatar` and the configured prefix avatar command return the same Discord embed.
+- Mentioning or replying to Theaa with `show my avatar` returns the requester's avatar.
+- `show @member avatar` returns the mentioned server member's avatar.
+- Plain username lookup is intentionally disabled.
+- An unmentioned or unavailable target returns a server-member error instead of silently returning the requester's avatar.
+- Theaa displays Discord typing status while processing message-based requests.
+
+### Commands and intents
+
+- Slash: `/avatar [user]`
+- Prefix: `<configured-prefix>avatar [@member]`
+- Natural language: `show my avatar` and `show @member avatar` through a bot mention or reply
+
+### Files changed
+
+- `src/commands/information/avatar.js` — added the shared `run(context)` action, consistent embed output, mention-only targeting, and server-membership validation.
+- `src/dispatcher/dispatcher.js` — added deterministic local command routing before AI classification and preserved classified command arguments.
+- `src/events/aiMessage.js` — added Discord typing status before message processing.
+- `ROADMAP.md` — recorded partial and completed milestone progress.
+- `PROJECT_STATE.md` — recorded behavior, implementation, verification, limitations, and Git state.
+
+### Dependencies
+
+- Added: none
+- Removed: none
+- Updated: none
+
+### Configuration and storage
+
+- Environment variables: unchanged
+- Configuration: unchanged
+- Data migration: none
+
+### Permissions and safety
+
+- Avatar is read-only and performs no Discord mutation.
+- Another user must be explicitly mentioned.
+- The target must be a member of the current server.
+- The bot's own mention is ignored as an avatar target.
+- No destructive-action confirmation is required.
+
+### Verification
+
+- Syntax: `avatar.js`, `dispatcher.js`, and `aiMessage.js` passed `node --check`.
+- Manual: slash self-avatar passed.
+- Manual: slash mentioned-user avatar passed.
+- Manual: prefix avatar passed.
+- Manual: natural-language self-avatar passed.
+- Manual: natural-language mentioned-user avatar passed.
+- Error case: plain username no longer falls back to the requester's avatar.
+- Error case: unavailable or unmentioned target returns a server-member error.
+- Typing status was confirmed visible in Discord.
+
+### Regression checks
+
+- Slash avatar output preserved.
+- Prefix avatar output preserved.
+- All supported avatar triggers use the same embed builder.
+- Local avatar routing works without Gemini availability.
+- Normal AI-provider behavior was not fully regression-tested because Gemini returned HTTP 429 quota exhaustion during development.
+
+### Limitations
+
+- Only avatar is currently verified as a complete shared reference action.
+- Other commands may still be slash-only or use legacy message execution.
+- Plain username resolution is intentionally unsupported; users must mention the target.
+- Typing is currently a standard typing indicator, not streamed output.
+- Gemini intent classification remains subject to provider quotas.
+
+### Git
+
+- Branch: `feature/shared-avatar-typing`
+- Commit: `Add shared avatar routing and typing status`
+- Pull request: not created
+- Merged: no
+
+### Roadmap
+
+- Completed: avatar reference action
+- Completed: slash and prefix preservation for avatar
+- Partial: deterministic natural-language command routing
+- Partial: typing indicators
+
+### Next recommendation
+
+- Feature: audit and consolidate the two `messageCreate` listeners.
+- Reason: prevent routing races, duplicate processing, and automod/AI conflicts.
+
 ## 2026-07-24 — Master roadmap and permanent project-state system
 
-**Status:** Files prepared; repository write access is still blocked.
+**Status:** Complete; files were manually committed by the project owner.
 
 ### Added
 
@@ -346,7 +443,7 @@ No bot code changed.
 
 ### Limitation
 
-The connected GitHub app returned HTTP 403 for branch and repository-content writes. The files must be uploaded or committed once write permission is available.
+The connected GitHub app still cannot write repository content, but the project owner committed and pushed these files manually through Termux.
 
 ### Next
 

@@ -1,6 +1,3 @@
-const askAI =
-    require("../ai/manager");
-
 const dispatcher =
     require("../dispatcher/dispatcher");
 
@@ -12,89 +9,115 @@ const {
 } = require("../discord/prefixManager");
 
 module.exports = {
-
     name: "messageCreate",
 
-    async execute(message) {
+    async execute(message)
+    {
+        if (message.author.bot)
+            return;
 
-        if (message.author.bot) return;
-        if (!message.guild) return;
+        if (!message.guild)
+            return;
 
         const botId =
             message.client.user.id;
 
         const prefix =
-            getPrefix(message.guild.id);
+            getPrefix(
+                message.guild.id
+            );
 
         const mentioned =
-            message.mentions.users.has(botId);
+            message.mentions.users.has(
+                botId
+            );
 
         const replied =
             message.reference &&
             message.reference.messageId;
 
-        let repliedToBot = false;
+        let repliedToBot =
+            false;
 
-        if (replied) {
-
-            try {
-
+        if (replied)
+        {
+            try
+            {
                 const repliedMessage =
                     await message.channel.messages.fetch(
                         message.reference.messageId
                     );
 
                 repliedToBot =
-                    repliedMessage.author.id === botId;
-
-            } catch (err) {
-
-                console.error(err);
-
+                    repliedMessage.author.id ===
+                    botId;
             }
-
+            catch (error)
+            {
+                console.error(
+                    error
+                );
+            }
         }
 
         const isPrefixCommand =
-            message.content.startsWith(prefix);
+            message.content.startsWith(
+                prefix
+            );
 
         if (
             !isPrefixCommand &&
             !mentioned &&
             !repliedToBot
-        ) return;
+        )
+        {
+            return;
+        }
 
-        let content = message.content;
+        let content =
+            message.content;
 
-        if (isPrefixCommand) {
-
-            content = content
-                .slice(prefix.length)
-                .trim();
-
-        } else {
-
-            content = content
-                .replace(
-                    new RegExp(`<@!?${botId}>`, "g"),
-                    ""
-                )
-                .trim();
-
+        if (isPrefixCommand)
+        {
+            content =
+                content
+                    .slice(
+                        prefix.length
+                    )
+                    .trim();
+        }
+        else
+        {
+            content =
+                content
+                    .replace(
+                        new RegExp(
+                            `<@!?${botId}>`,
+                            "g"
+                        ),
+                        ""
+                    )
+                    .trim();
         }
 
         if (!content.length)
-            content = "Hello!";
+        {
+            content =
+                "Hello!";
+        }
 
-        try {
+        await message.channel
+            .sendTyping()
+            .catch(() => {});
 
+        try
+        {
             const discordContext =
                 await discordBrain.getContext({
                     message
                 });
 
             const context = {
-
                 guildId:
                     message.guild.id,
 
@@ -121,27 +144,22 @@ module.exports = {
                     content,
 
                 discordContext
-
             };
 
             await dispatcher({
-
                 message,
-
                 context
-
             });
-
-        } catch (err) {
-
-            console.error(err);
-
-            await message.reply(
-                "❌ Something went wrong while talking to Theaa."
+        }
+        catch (error)
+        {
+            console.error(
+                error
             );
 
+            await message.reply(
+                "Something went wrong while talking to Theaa."
+            );
         }
-
     }
-
 };
