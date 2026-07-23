@@ -1,0 +1,9 @@
+{
+    "1528678283200303226": {
+        "invites": true,
+        "links": true,
+        "spam": true,
+        "mentions": true,
+        "everyone": true
+    }
+}
