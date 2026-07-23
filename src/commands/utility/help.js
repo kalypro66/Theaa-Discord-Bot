@@ -1,33 +1,183 @@
 const {
-    SlashCommandBuilder,
-    EmbedBuilder
-} = require('discord.js');
+    SlashCommandBuilder
+} = require("discord.js");
+
+const {
+    getCommands,
+    getGroupedCommands,
+    getCommandDetails
+} = require("../../help/helpService");
+
+const {
+    createOverviewEmbed,
+    createCommandEmbed,
+    createNotFoundEmbed
+} = require("../../help/helpFormatter");
+
+const {
+    getPrefix
+} = require("../../discord/prefixManager");
+
+async function run(context)
+{
+    const prefix =
+        getPrefix(
+            context.guild.id
+        );
+
+    const query =
+        (context.args || [])
+            .join(" ")
+            .trim();
+
+    if (query)
+    {
+        const command =
+            getCommandDetails(
+                query
+            );
+
+        if (!command)
+        {
+            return {
+                embeds: [
+                    createNotFoundEmbed({
+                        client:
+                            context.client,
+
+                        query,
+
+                        prefix
+                    })
+                ],
+
+                allowedMentions: {
+                    repliedUser:
+                        false
+                }
+            };
+        }
+
+        return {
+            embeds: [
+                createCommandEmbed({
+                    client:
+                        context.client,
+
+                    prefix,
+
+                    command
+                })
+            ],
+
+            allowedMentions: {
+                repliedUser:
+                    false
+            }
+        };
+    }
+
+    const commands =
+        getCommands();
+
+    const groups =
+        getGroupedCommands();
+
+    return {
+        embeds: [
+            createOverviewEmbed({
+                client:
+                    context.client,
+
+                prefix,
+
+                groups,
+
+                totalCommands:
+                    commands.length
+            })
+        ],
+
+        allowedMentions: {
+            repliedUser:
+                false
+        }
+    };
+}
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('help')
-        .setDescription('Shows all commands'),
+    name:
+        "help",
 
-    async execute(interaction) {
+    aliases: [
+        "commands"
+    ],
 
-        const embed = new EmbedBuilder()
-            .setColor('#5865F2')
-            .setTitle('📖 Help Menu')
-            .setDescription('Here are my available commands.')
-            .addFields(
-                {
-                    name: '🏓 Utility',
-                    value: '`/ping` - Check bot latency\n`/help` - Show this menu'
-                }
+    triggers: [
+        "show commands",
+        "show help"
+    ],
+
+    category:
+        "utility",
+
+    description:
+        "Shows all available commands or detailed help for one command.",
+
+    permissions: [],
+
+    data:
+        new SlashCommandBuilder()
+            .setName(
+                "help"
             )
-            .setFooter({
-                text: interaction.client.user.username,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            .setDescription(
+                "Shows available commands"
+            )
+            .addStringOption(option =>
+                option
+                    .setName(
+                        "command"
+                    )
+                    .setDescription(
+                        "Command to view detailed help for"
+                    )
+                    .setRequired(
+                        false
+                    )
+            ),
 
-        await interaction.reply({
-            embeds: [embed]
-        });
+    run,
+
+    async execute(interaction)
+    {
+        const commandName =
+            interaction.options.getString(
+                "command"
+            );
+
+        const reply =
+            await run({
+                guild:
+                    interaction.guild,
+
+                client:
+                    interaction.client,
+
+                user:
+                    interaction.user,
+
+                message:
+                    null,
+
+                args:
+                    commandName
+                        ? [commandName]
+                        : []
+            });
+
+        await interaction.reply(
+            reply
+        );
     }
 };
