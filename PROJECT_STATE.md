@@ -202,7 +202,7 @@ Legend:
 - [x] Command registry prototype
 - [x] Message router prototype
 - [x] Command executor prototype
-- [~] Shared action contract — avatar reference implementation
+- [~] Shared action contract — avatar, banner, and userinfo use shared member resolution
 - [~] Deterministic local natural-language routing
 - [x] Typing indicator for mention, reply, and prefix processing
 
@@ -334,7 +334,7 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 - [x] Document exact message flow
 - [x] Verify and remove duplicate processing
-- [ ] Inventory commands and dependencies
+- [~] Inventory commands and dependencies — information target commands reviewed
 - [ ] Define shared action contract
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
@@ -346,6 +346,82 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-24 — Shared server-member resolver
+
+**Status:** Implemented and manually verified on `feature/shared-member-resolver`. Git commit, push, merge, and remote verification are still pending.
+
+### Files created
+
+- `src/discord/resolvers/memberResolver.js`
+- `CHATGPT_HANDOFF.md`
+
+### Files changed
+
+- `src/commands/information/avatar.js`
+- `src/commands/information/banner.js`
+- `src/commands/information/userinfo.js`
+- `src/dispatcher/routeIntent.js`
+- `DEVELOPMENT_RULES.md`
+- `ROADMAP.md`
+- `PROJECT_STATE.md`
+
+### What changed
+
+- Added one shared resolver for slash-selected members, mentions, explicit user IDs, and self words.
+- Converted avatar, banner, and userinfo to the shared resolver.
+- Added timestamps to avatar, banner, and userinfo embeds.
+- Changed the missing-banner response to: `This user doesn't have a profile banner.`
+- Restored AI replies for classifier results using the `conversation` intent.
+- Added a permanent ChatGPT handoff file.
+- Recorded the future shared embed-style and server-owner plans.
+
+### What now works
+
+- Avatar, banner, and userinfo share target-resolution behavior.
+- Self requests work.
+- Mentioned server members work.
+- Explicit server-member IDs work.
+- Plain username guessing remains intentionally disabled.
+- Missing server members receive consistent errors.
+- Normal AI conversation through mentions and replies works again.
+- Bare mentions receive an AI response.
+- Normal unmentioned messages remain ignored.
+- Successful avatar, banner, and userinfo embeds include timestamps.
+
+### Verification
+
+- Syntax checks passed for all changed JavaScript files.
+- `git diff --check` passed.
+- Avatar slash, prefix, mention, self, member, and ID tests passed.
+- Banner slash, prefix, mention, self, member, and ID tests passed.
+- Userinfo slash, prefix, mention, self, member, and ID tests passed.
+- Plain username rejection passed.
+- AI `roast me` mention test passed.
+- Bare mention test passed.
+- Normal unmentioned-message test passed.
+- No duplicate responses were observed.
+- No unexpected AutoMod deletion occurred during final regression testing.
+
+### Known limitations
+
+- Fuzzy username and display-name resolution are intentionally unsupported.
+- Only the member resolver exists; role, channel, message, and duration resolvers remain planned.
+- Existing embeds outside avatar, banner, and userinfo may still lack timestamps.
+- Shared embed styling has not been implemented yet.
+
+### Git
+
+- Feature branch: `feature/shared-member-resolver`
+- Commit: pending
+- Remote feature push: pending
+- Main merge: pending
+
+### Next recommended feature
+
+- Shared embed-style helper and migration.
+- Then add the dedicated server-owner command.
+
 
 ## 2026-07-24 — Auto-generated command help
 

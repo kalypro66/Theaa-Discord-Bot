@@ -1,82 +1,308 @@
 const {
     SlashCommandBuilder,
     EmbedBuilder
-} = require('discord.js');
+} = require("discord.js");
+
+const {
+    resolveMember,
+    createMemberErrorReply
+} = require(
+    "../../discord/resolvers/memberResolver"
+);
+
+function buildRolesValue(member)
+{
+    const roles =
+        member.roles.cache
+            .filter(
+                role =>
+                    role.id !==
+                    member.guild.id
+            )
+            .sort(
+                (first, second) =>
+                    second.position -
+                    first.position
+            )
+            .map(
+                role =>
+                    role.toString()
+            );
+
+    if (!roles.length)
+        return "None";
+
+    let value = "";
+
+    for (const role of roles)
+    {
+        const addition =
+            value
+                ? `, ${role}`
+                : role;
+
+        if (
+            value.length +
+            addition.length >
+            1000
+        )
+        {
+            return `${value}, and more...`;
+        }
+
+        value += addition;
+    }
+
+    return value;
+}
+
+function buildUserInfoEmbed({
+    member,
+    client,
+    guild
+})
+{
+    const user =
+        member.user;
+
+    const createdTimestamp =
+        Math.floor(
+            user.createdTimestamp /
+            1000
+        );
+
+    const joinedTimestamp =
+        member.joinedTimestamp
+            ? Math.floor(
+                member.joinedTimestamp /
+                1000
+            )
+            : null;
+
+    const roles =
+        buildRolesValue(
+            member
+        );
+
+    const roleCount =
+        Math.max(
+            member.roles.cache.size - 1,
+            0
+        );
+
+    return new EmbedBuilder()
+        .setColor(
+            "#00D9E6"
+        )
+        .setAuthor({
+            name:
+                user.username,
+
+            iconURL:
+                user.displayAvatarURL({
+                    size:
+                        128
+                })
+        })
+        .setDescription(
+            `${member}`
+        )
+        .setThumbnail(
+            user.displayAvatarURL({
+                size:
+                    512
+            })
+        )
+        .addFields(
+            {
+                name:
+                    "ID",
+
+                value:
+                    user.id
+            },
+            {
+                name:
+                    "Created Date",
+
+                value:
+                    `<t:${createdTimestamp}:F>\n(<t:${createdTimestamp}:R>)`
+            },
+            {
+                name:
+                    "Join Date",
+
+                value:
+                    joinedTimestamp
+                        ? `<t:${joinedTimestamp}:F>\n(<t:${joinedTimestamp}:R>)`
+                        : "Unknown"
+            },
+            {
+                name:
+                    "Server Boost",
+
+                value:
+                    member.premiumSince
+                        ? "Yes"
+                        : "No"
+            },
+            {
+                name:
+                    `Roles (${roleCount})`,
+
+                value:
+                    roles
+            }
+        )
+        .setFooter({
+            text:
+                `${client.user.username} | ${guild.name}`,
+
+            iconURL:
+                client.user.displayAvatarURL()
+        })
+        .setTimestamp();
+}
+
+async function run(context)
+{
+    const resolution =
+        await resolveMember(
+            context,
+            {
+                ignoredTerms: [
+                    "userinfo",
+                    "user info",
+                    "user information",
+                    "memberinfo",
+                    "member info",
+                    "member information",
+                    "whois",
+                    "show",
+                    "send",
+                    "get",
+                    "give",
+                    "display",
+                    "view",
+                    "see",
+                    "open",
+                    "check"
+                ]
+            }
+        );
+
+    if (!resolution.ok)
+    {
+        return createMemberErrorReply(
+            resolution
+        );
+    }
+
+    const embed =
+        buildUserInfoEmbed({
+            member:
+                resolution.member,
+
+            client:
+                context.client,
+
+            guild:
+                context.guild
+        });
+
+    return {
+        embeds: [
+            embed
+        ],
+
+        allowedMentions: {
+            repliedUser:
+                false
+        }
+    };
+}
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('userinfo')
-        .setDescription('Shows information about a user')
-        .addUserOption(option =>
-            option
-                .setName('user')
-                .setDescription('The user you want information about')
-                .setRequired(false)
-        ),
+    name:
+        "userinfo",
 
-    async execute(interaction) {
+    aliases: [
+        "memberinfo",
+        "whois"
+    ],
 
-        const user =
-            interaction.options.getUser('user') || interaction.user;
+    triggers: [
+        "show my user info",
+        "show user info",
+        "show member info",
+        "who am i"
+    ],
 
-        const member =
-            interaction.guild.members.cache.get(user.id);
+    category:
+        "information",
 
-        const roles = member
-            ? member.roles.cache
-                .filter(role => role.id !== interaction.guild.id)
-                .sort((a, b) => b.position - a.position)
-                .map(role => role.toString())
-                .join(', ') || 'None'
-            : 'None';
+    description:
+        "Shows information about a server member.",
 
-        const boostStatus =
-            member && member.premiumSince
-                ? 'Yes'
-                : 'No';
+    permissions: [],
 
-        const embed = new EmbedBuilder()
-            .setColor('#00D9E6')
-            .setAuthor({
-                name: user.username,
-                iconURL: user.displayAvatarURL({ dynamic: true })
-            })
-            .setDescription(`<@${user.id}>`)
-            .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
-            .addFields(
-                {
-                    name: 'ID',
-                    value: user.id
-                },
-                {
-                    name: 'Created Date',
-                    value: `<t:${Math.floor(user.createdTimestamp / 1000)}:F>\n(<t:${Math.floor(user.createdTimestamp / 1000)}:R>)`
-                },
-                {
-                    name: 'Join Date',
-                    value: member && member.joinedTimestamp
-                        ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:F>\n(<t:${Math.floor(member.joinedTimestamp / 1000)}:R>)`
-                        : 'Unknown'
-                },
-                {
-                    name: 'Server Boost',
-                    value: boostStatus
-                },
-                {
-                    name: `Roles (${member ? member.roles.cache.size - 1 : 0})`,
-                    value: roles
-                }
+    data:
+        new SlashCommandBuilder()
+            .setName(
+                "userinfo"
             )
-            .setFooter({
-                text: `${interaction.client.user.username} | Today at ${new Date().toLocaleTimeString([], {
-                    hour: 'numeric',
-                    minute: '2-digit'
-                })}`,
-                iconURL: interaction.client.user.displayAvatarURL()
+            .setDescription(
+                "Shows information about a server member"
+            )
+            .addUserOption(option =>
+                option
+                    .setName(
+                        "user"
+                    )
+                    .setDescription(
+                        "The server member you want information about"
+                    )
+                    .setRequired(
+                        false
+                    )
+            ),
+
+    run,
+
+    async execute(interaction)
+    {
+        const reply =
+            await run({
+                guild:
+                    interaction.guild,
+
+                member:
+                    interaction.member,
+
+                client:
+                    interaction.client,
+
+                user:
+                    interaction.user,
+
+                targetMember:
+                    interaction.options.getMember(
+                        "user"
+                    ),
+
+                targetUser:
+                    interaction.options.getUser(
+                        "user"
+                    ),
+
+                message:
+                    null,
+
+                args: []
             });
 
-        await interaction.reply({
-            embeds: [embed]
-        });
+        await interaction.reply(
+            reply
+        );
     }
 };

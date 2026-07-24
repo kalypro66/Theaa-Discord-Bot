@@ -62,3 +62,12 @@ Do not start another feature before this gate is complete.
 - Do not duplicate command data.
 - Slash, prefix, mention, reply, and natural-language inputs must share action logic.
 - Do not claim success before Git or Discord confirms it.
+
+
+## Continuity and embed rules
+
+- Read `CHATGPT_HANDOFF.md` when continuing the project in a new chat.
+- Update `CHATGPT_HANDOFF.md` after every completed feature and before pausing unfinished work.
+- Every new or modified command embed must include `.setTimestamp()`.
+- Standard command footers must use Theaa's avatar and `Theaa | Server Name`.
+- Once the shared embed helper exists, all command embeds must use it.

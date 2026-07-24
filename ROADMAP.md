@@ -94,12 +94,13 @@ Approved order:
 - [ ] Define command metadata
 - [~] Define standard action input and result — avatar reference implementation complete
 - [ ] Separate parsing, validation, execution, and reply formatting
-- [ ] Add user, role, channel, message, and duration resolvers
+- [~] Add user, role, channel, message, and duration resolvers — shared member resolver complete
 - [ ] Add permission and role-hierarchy checks
 - [ ] Add cooldowns
 - [ ] Add confirmation prompts
 - [ ] Add audit logging
 - [ ] Add consistent errors
+- [ ] Add shared embed defaults for colors, footers, server context, and timestamps
 - [x] Auto-generate help from command metadata
 - [~] Preserve slash and prefix compatibility — verified for avatar
 
@@ -176,6 +177,8 @@ Add:
 - [ ] Bot information
 - [ ] Member roles and permissions
 - [ ] Server icon, banner, owner, counts
+- [ ] Dedicated server owner command
+- [ ] Server staff command with configured staff rules
 - [ ] Recent joins
 - [ ] Account age and join position
 - [ ] Message information

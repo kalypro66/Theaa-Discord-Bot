@@ -49,6 +49,7 @@ module.exports = async function routeIntent({
 
         }
 
+        case "conversation":
         case "ai": {
 
             const reply =
