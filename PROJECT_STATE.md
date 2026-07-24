@@ -343,12 +343,113 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [x] Preserve slash and prefix behavior for avatar
 - [x] Auto-generate help
 - [x] Add shared embed defaults and migrate existing command embeds
-- [ ] Add paginated Previous/Next help navigation
+- [x] Add paginated Previous/Next help navigation
 - [ ] Begin Core Command Parity
 
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-25 — Paginated help overview
+
+**Status:** Implementation, automated checks, and manual Discord verification are complete. Documentation is updated. Commit, feature push, remote verification, and merge are pending.
+
+### Files created
+
+- `src/help/helpPagination.js`
+
+### Files changed
+
+- `src/commands/moderation/nuke.js`
+- `src/commands/moderation/purge.js`
+- `src/commands/utility/help.js`
+- `src/help/helpFormatter.js`
+- `src/router/executeCommand.js`
+- `src/router/messageRouter.js`
+- `ROADMAP.md`
+- `PROJECT_STATE.md`
+- `CHATGPT_HANDOFF.md`
+
+### Files deleted
+
+- None.
+
+### What changed
+
+- Added a two-page automatically generated help overview.
+- Page 1 contains Utility, Information, and Server.
+- Page 2 contains General.
+- Added text-only Previous and Next buttons.
+- Navigation edits the original help message.
+- Added Page X of Y.
+- Disabled unavailable navigation directions.
+- Restricted navigation to the user who opened the menu.
+- Increased button lifetime to ten minutes.
+- Added shared `afterReply` handling for message-based commands.
+- Fixed mention-command argument extraction.
+- Replaced deprecated `fetchReply: true` response options in help, nuke, and purge.
+
+### What now works
+
+- `/help`
+- `?help`
+- `@Theaa help`
+- Replying to Theaa with `help`
+- `/help command:avatar`
+- `@Theaa help avatar`
+- Previous and Next update the same message.
+- Only the original requester can control the buttons.
+
+### Problem solved
+
+The generated help overview could not scale cleanly as more commands were added. Mention-based help could also incorrectly treat the command name as a help query.
+
+### Verification
+
+- Every JavaScript file under `src` passed `node --check`.
+- `git diff --check` passed.
+- Formatter tests confirmed the two-page category layout.
+- The bot logged in successfully.
+- No `fetchReply` deprecation warning appeared after restart.
+- All six help entry methods were manually tested.
+- Previous, Next, page boundaries, and disabled states were manually verified.
+
+### Regression checks
+
+- Detailed command help still works.
+- Help remains generated from command metadata.
+- Slash, prefix, mention, reply, and natural-language routing remain active.
+- Existing reply-object, embed, and string results remain supported.
+- Nuke and purge passed syntax checks.
+- No deprecated `fetchReply:` options remain under `src`.
+
+### Known limitations
+
+- Buttons intentionally expire after ten minutes.
+- Many moderation commands currently have inaccurate General metadata.
+- Several existing commands remain slash-only until Existing Command Parity.
+- Automated test files have not been added.
+
+### Git
+
+- Feature branch: `feature/paginated-help`
+- Feature commit: pending
+- Remote feature push: pending
+- Main merge: pending
+
+### Product decisions recorded
+
+- Every existing command must support slash, prefix, mention, reply, natural language, and detailed help lookup.
+- Existing commands will be migrated together instead of patched individually.
+- All entry methods must call the same shared action implementation.
+- Future commands must follow this architecture from their first implementation.
+- Existing Command Parity is next.
+- The dedicated serverowner command follows Existing Command Parity.
+
+### Next recommended feature
+
+- Existing Command Parity.
+- Correct inaccurate command categories during the parity audit.
 
 ## 2026-07-25 — Shared embed style and AutoMod staff exemptions
 
@@ -445,16 +546,16 @@ Add new entries at the top.
 
 ### Product decisions recorded
 
-- The next feature is a paginated help overview using text-only `Previous` and `Next` buttons.
+- Paginated help was selected as the next feature and has now been completed.
 - Pagination edits the existing message, shows `Page X of Y`, and disables unavailable directions.
-- The dedicated `serverowner` command follows the paginated help feature.
+- Existing Command Parity now comes before the dedicated `serverowner` command.
 - A proper mobile-first website will be built after the bot and shared configuration architecture are stable.
 - Discord will retain essential moderation and AutoMod enable/disable/status controls.
 - Detailed customization will move to the website dashboard and use the same underlying configuration as Discord commands.
 
 ### Next recommended feature
 
-- Paginated help overview with `Previous` and `Next` buttons.
+- Existing Command Parity.
 - Then build the dedicated `serverowner` command.
 
 

@@ -95,7 +95,27 @@ module.exports = async function executeCommand(
         --------------------------------
         */
 
-        return message.reply(result);
+        const {
+            afterReply,
+            ...replyOptions
+        } = result;
+
+        const replyMessage =
+            await message.reply(
+                replyOptions
+            );
+
+        if (
+            typeof afterReply ===
+            "function"
+        )
+        {
+            await afterReply(
+                replyMessage
+            );
+        }
+
+        return replyMessage;
 
     }
 
