@@ -352,7 +352,7 @@ Add new entries at the top.
 
 ## 2026-07-25 — Paginated help overview
 
-**Status:** Implementation, automated checks, and manual Discord verification are complete. Documentation is updated. Commit, feature push, remote verification, and merge are pending.
+**Status:** Complete, manually verified, committed, pushed, remotely verified, merged into `main`, and post-merge documentation corrected.
 
 ### Files created
 
@@ -433,9 +433,11 @@ The generated help overview could not scale cleanly as more commands were added.
 ### Git
 
 - Feature branch: `feature/paginated-help`
-- Feature commit: pending
-- Remote feature push: pending
-- Main merge: pending
+- Feature commit: `f862aa4e3889b3c8b7d7d4c40fdd4a2159480485`
+- Remote feature push: verified
+- Main merge commit: `73da2224eaa3299e98d861987fd1e78a0c5088b1`
+- Remote `main` verification: complete
+- Post-merge documentation correction: complete
 
 ### Product decisions recorded
 
