@@ -349,7 +349,7 @@ Add new entries at the top.
 
 ## 2026-07-24 — Shared server-member resolver
 
-**Status:** Implemented and manually verified on `feature/shared-member-resolver`. Git commit, push, merge, and remote verification are still pending.
+**Status:** Complete, manually verified, committed, pushed, merged into `main`, and remotely verified.
 
 ### Files created
 
@@ -413,9 +413,9 @@ Add new entries at the top.
 ### Git
 
 - Feature branch: `feature/shared-member-resolver`
-- Commit: pending
-- Remote feature push: pending
-- Main merge: pending
+- Commit: `d910c0b`
+- Remote feature push: verified
+- Main merge: complete and remotely verified
 
 ### Next recommended feature
 
