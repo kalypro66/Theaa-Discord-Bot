@@ -12,20 +12,17 @@ Stack: JavaScript, Node.js, discord.js
 5. Inspect the actual related code files
 
 ## Current Branch
-feature/shared-embed-style
+main
 
 ## Current Feature State
-Shared embed-style implementation and manual Discord verification are complete.
+Shared embed styling and the AutoMod staff exemptions are complete.
 
-Pending:
-- Final documentation review
-- Commit
-- Feature-branch push
-- Remote verification
-- Merge into main
-- Main remote verification
-- Post-merge documentation correction
-- Final completion report
+Verified Git state:
+- Feature commit: `4b1c6ccfa64764955892b85225d66855a995f292`
+- Feature branch push: verified
+- Merge commit: `5e7c71ca889e71d7fe20903299d822344b87bae1`
+- Remote `main`: verified
+- Post-merge documentation correction: complete
 
 ## Next Planned Feature
 Paginated help overview using text-only Previous and Next buttons.
@@ -39,15 +36,19 @@ Confirmed behavior:
 - Do not use emojis on the navigation buttons
 
 ## Previous Feature Completed
-Shared server-member resolver.
+Shared embed styling and AutoMod staff exemptions.
 
 Completed:
-- Added `src/discord/resolvers/memberResolver.js`
-- Converted avatar, banner, and userinfo to shared member resolution
-- Restored normal AI conversation routing
-- Committed as `d910c0b`
-- Pushed, merged into main, and remotely verified
-- Final documentation commit: `f2c2ec2`
+- Added `src/discord/embeds/embedStyle.js`
+- Migrated information, moderation, help, and AutoMod log embeds
+- Standardized the exact `Theaa | Server Name` footer
+- Added automatic timestamps through the shared helper
+- Preserved command-specific colors and media
+- Exempted the server owner and recognized moderation staff from AutoMod
+- Manually verified avatar, serverinfo, help, help errors, and AutoMod status
+- Committed as `4b1c6cc`
+- Merged into `main` as `5e7c71c`
+- Feature branch and remote `main` verified
 
 ## Permanent Embed Rule
 Every new or modified embed must include:

@@ -352,7 +352,7 @@ Add new entries at the top.
 
 ## 2026-07-25 — Shared embed style and AutoMod staff exemptions
 
-**Status:** Implementation and manual verification complete. Documentation updated. Commit, remote push, remote verification, and merge are still pending.
+**Status:** Complete, manually verified, committed, pushed, remotely verified, merged into `main`, and post-merge documentation corrected.
 
 ### Files created
 
@@ -437,9 +437,11 @@ Add new entries at the top.
 ### Git
 
 - Feature branch: `feature/shared-embed-style`
-- Commit: pending
-- Remote feature push: pending
-- Main merge: pending
+- Feature commit: `4b1c6ccfa64764955892b85225d66855a995f292`
+- Remote feature push: verified
+- Main merge commit: `5e7c71ca889e71d7fe20903299d822344b87bae1`
+- Remote `main` verification: complete
+- Post-merge documentation correction: complete
 
 ### Product decisions recorded
 
