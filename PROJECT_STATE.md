@@ -12,13 +12,15 @@ This file exists so development never depends only on ChatGPT memory.
 
 ## Before every code change
 
-1. Read this file.
-2. Read `ROADMAP.md`.
-3. Inspect the actual related repository files.
-4. Verify the current implementation instead of trusting old descriptions.
-5. Identify the smallest safe file set.
-6. Trace dependencies.
-7. Protect all working features listed here.
+1. Read `DEVELOPMENT_RULES.md`.
+2. Read this file.
+3. Read `ROADMAP.md`.
+4. Inspect the actual related repository files.
+5. Verify the current implementation instead of trusting old descriptions.
+6. Confirm the previous feature was committed, pushed, verified remotely, and merged.
+7. Identify the smallest safe file set.
+8. Trace dependencies.
+9. Protect all working features listed here.
 
 ## After every successful feature
 
@@ -40,7 +42,7 @@ Update:
 - Roadmap checkboxes
 - Next recommended feature
 
-A feature is not complete until this file and `ROADMAP.md` are updated and pushed.
+A feature is not complete until it is tested, documented, committed, pushed, remotely verified, merged into `main`, reported, and followed by the next recommendation.
 
 # 2. Vision
 
@@ -84,6 +86,7 @@ AI providers may classify or propose actions, but must never directly manipulate
 
 ```text
 Theaa-Discord-Bot/
+├── DEVELOPMENT_RULES.md
 ├── index.js
 ├── deploy-commands.js
 ├── package.json
@@ -103,6 +106,7 @@ Theaa-Discord-Bot/
     ├── discord/
     ├── events/
     ├── handlers/
+    ├── help/
     ├── router/
     └── utils/
 ```
@@ -205,7 +209,7 @@ Legend:
 ## Utility
 
 - [x] Ping
-- [x] Help
+- [x] Help — generated automatically from registered command metadata
 - [x] Set prefix
 
 ## Information
@@ -279,6 +283,8 @@ Real guild, channel, user, prefix, and moderation data is tracked publicly. Repl
 | `src/router/commandRegistry.js` | Discover commands/actions | Discord side effects |
 | `src/router/messageRouter.js` | Route command input | Provider API code |
 | `src/router/executeCommand.js` | Invoke verified interface | Intent guessing |
+| `src/help/helpService.js` | Read, group, and search registered command metadata | Discord embed formatting |
+| `src/help/helpFormatter.js` | Build help overview, detail, and error embeds | Command discovery or routing |
 | `src/ai/manager.js` | AI orchestration | Direct Discord actions |
 | `src/ai/providerManager.js` | Provider selection/fallback | Discord execution |
 | `src/ai/gemini.js` | Gemini adapter | Routing |
@@ -306,7 +312,7 @@ Update this registry whenever responsibilities change.
 - [ ] `npm test` currently fails intentionally
 - [ ] Provider fallback needs verification
 - [ ] Prompt and future modules may be empty placeholders
-- [ ] Help may require manual updates
+- [x] Help is generated automatically from registered command metadata
 
 # 11. Approved Build Strategy
 
@@ -334,12 +340,62 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [ ] Add shared hierarchy checks
 - [x] Convert `avatar` as the reference action
 - [x] Preserve slash and prefix behavior for avatar
-- [ ] Auto-generate help
+- [x] Auto-generate help
 - [ ] Begin Core Command Parity
 
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-24 — Auto-generated command help
+
+**Status:** Complete, manually verified, committed, and pushed to the feature branch.
+
+### What changed
+
+- Created src/help/helpService.js for command discovery, grouping, and lookup.
+- Created src/help/helpFormatter.js for overview, detail, and error embeds.
+- Rebuilt src/commands/utility/help.js as a shared slash, prefix, and natural-language command.
+- Created DEVELOPMENT_RULES.md to enforce saving, documentation, remote verification, merging, and completion reports.
+
+### What now works
+
+- /help automatically displays registered commands.
+- /help command:avatar displays detailed command information.
+- Prefix help uses the server current configured prefix.
+- Prefix and natural-language help use the same help system.
+- Newly registered commands appear without manually editing the help menu.
+
+### Problem solved
+
+- The help menu no longer contains a duplicated and outdated command list.
+- Prefix changes automatically appear in help usage examples.
+- Completed features can no longer be treated as finished before they are saved and merged.
+
+### Verification
+
+- Help service, formatter, and command syntax checks passed.
+- Slash overview and detail help passed.
+- Prefix overview and detail help passed.
+- Mention-based help passed.
+- Slash commands were deployed successfully.
+
+### Git
+
+- Feature branch: feature/auto-generated-help
+- Code commit: e736514
+- Remote feature push: verified
+- Main merge: pending completion of documentation commit
+
+### Known limitations
+
+- Help quality depends on commands having accurate metadata.
+- Detailed slash-option usage is not yet generated automatically.
+
+### Next recommended feature
+
+- Shared server-member resolver.
+- This will prevent avatar, banner, userinfo, role, and moderation commands from duplicating target-resolution logic.
 
 ## 2026-07-24 — Single message dispatcher and controlled AutoMod flow
 

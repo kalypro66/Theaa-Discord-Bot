@@ -39,16 +39,18 @@ Message / command / reply / attachment
 
 ## Permanent Rules
 
-1. Read `PROJECT_STATE.md` before every code change.
-2. Inspect all directly related files before editing.
-3. Preserve working features.
-4. Prefer small isolated changes.
-5. AI must never directly manipulate Discord.
-6. Slash, prefix, natural-language, dashboard, and scheduled calls should share action logic.
-7. Validate permissions, hierarchy, targets, arguments, and safety.
-8. Confirm destructive, ambiguous, or bulk actions.
-9. Keep development practical on Android.
-10. Every successful feature must be tested, committed, pushed, and recorded in both roadmap and project state.
+1. Read `DEVELOPMENT_RULES.md` before every code change.
+2. Read `PROJECT_STATE.md` before every code change.
+3. Inspect all directly related files before editing.
+4. Preserve working features.
+5. Prefer small isolated changes.
+6. AI must never directly manipulate Discord.
+7. Slash, prefix, natural-language, dashboard, and scheduled calls should share action logic.
+8. Validate permissions, hierarchy, targets, arguments, and safety.
+9. Confirm destructive, ambiguous, or bulk actions.
+10. Keep development practical on Android.
+11. Every successful feature must be tested, documented, committed, pushed, remotely verified, merged, and reported.
+12. Do not begin another feature until the current feature is completely saved and merged.
 
 # Priority Decision
 
@@ -98,7 +100,7 @@ Approved order:
 - [ ] Add confirmation prompts
 - [ ] Add audit logging
 - [ ] Add consistent errors
-- [ ] Auto-generate help from command metadata
+- [x] Auto-generate help from command metadata
 - [~] Preserve slash and prefix compatibility — verified for avatar
 
 Definition of success: one action can be called by slash, prefix, natural language, future dashboard, or automation without duplicated Discord logic.
