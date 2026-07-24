@@ -4,7 +4,7 @@
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
 **Environment:** Android, Acode, Termux  
 **Stack:** JavaScript, Node.js, discord.js  
-**Updated:** 2026-07-24
+**Updated:** 2026-07-25
 
 # 1. Mandatory Procedure
 
@@ -285,6 +285,7 @@ Real guild, channel, user, prefix, and moderation data is tracked publicly. Repl
 | `src/router/executeCommand.js` | Invoke verified interface | Intent guessing |
 | `src/help/helpService.js` | Read, group, and search registered command metadata | Discord embed formatting |
 | `src/help/helpFormatter.js` | Build help overview, detail, and error embeds | Command discovery or routing |
+| `src/discord/embeds/embedStyle.js` | Create standard embed colors, Theaa footer context, and timestamps | Command-specific business logic |
 | `src/ai/manager.js` | AI orchestration | Direct Discord actions |
 | `src/ai/providerManager.js` | Provider selection/fallback | Discord execution |
 | `src/ai/gemini.js` | Gemini adapter | Routing |
@@ -334,18 +335,126 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 - [x] Document exact message flow
 - [x] Verify and remove duplicate processing
-- [~] Inventory commands and dependencies — information target commands reviewed
+- [~] Inventory commands and dependencies — information and embed-producing commands reviewed
 - [ ] Define shared action contract
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
 - [x] Convert `avatar` as the reference action
 - [x] Preserve slash and prefix behavior for avatar
 - [x] Auto-generate help
+- [x] Add shared embed defaults and migrate existing command embeds
+- [ ] Add paginated Previous/Next help navigation
 - [ ] Begin Core Command Parity
 
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-25 — Shared embed style and AutoMod staff exemptions
+
+**Status:** Implementation and manual verification complete. Documentation updated. Commit, remote push, remote verification, and merge are still pending.
+
+### Files created
+
+- `src/discord/embeds/embedStyle.js`
+
+### Files changed
+
+- `src/automod/processMessage.js`
+- `src/commands/information/avatar.js`
+- `src/commands/information/banner.js`
+- `src/commands/information/serverinfo.js`
+- `src/commands/information/userinfo.js`
+- `src/commands/moderation/addrole.js`
+- `src/commands/moderation/automod.js`
+- `src/commands/moderation/ban.js`
+- `src/commands/moderation/kick.js`
+- `src/commands/moderation/lock.js`
+- `src/commands/moderation/nuke.js`
+- `src/commands/moderation/purge.js`
+- `src/commands/moderation/removerole.js`
+- `src/commands/moderation/setlogs.js`
+- `src/commands/moderation/timeout.js`
+- `src/commands/moderation/unban.js`
+- `src/commands/moderation/unlock.js`
+- `src/commands/moderation/warn.js`
+- `src/commands/utility/help.js`
+- `src/help/helpFormatter.js`
+- `ROADMAP.md`
+- `PROJECT_STATE.md`
+- `CHATGPT_HANDOFF.md`
+
+### What changed
+
+- Added one shared embed-style helper using the default Theaa color, exact `Theaa | Server Name` footer, Theaa avatar footer icon, and automatic timestamp.
+- Migrated information, moderation, help, and AutoMod log embeds away from duplicated footer and timestamp code.
+- Preserved command-specific colors, titles, fields, authors, thumbnails, and images.
+- Added the registered-command count to the help overview description because the standard footer now contains server context.
+- Added timestamps to server information and command-not-found help responses.
+- Expanded AutoMod exemptions to include the server owner and members with administrator or moderation-management permissions.
+- Recorded the confirmed paginated-help design using `Previous` and `Next` buttons.
+- Recorded the future website decision: essential controls stay in Discord while detailed server customization moves to the dashboard.
+
+### What now works
+
+- Embed color, footer context, footer icon, and timestamps are controlled from one shared module.
+- Existing migrated command embeds consistently display `Theaa | Server Name`.
+- Avatar, server information, help overview, help details, help errors, and AutoMod status retain their existing command behavior.
+- AutoMod ignores the server owner and members with recognized moderation permissions.
+- Help remains generated from the command registry.
+
+### Verification
+
+- `git diff --check` passed.
+- Every JavaScript file under `src` passed `node --check`.
+- Runtime imports passed for all 20 changed JavaScript files.
+- The bot logged in successfully.
+- Avatar output was manually verified.
+- Server information output was manually verified.
+- Help overview output was manually verified.
+- Help command-detail output was manually verified.
+- Help command-not-found output was manually verified.
+- AutoMod status output was manually verified.
+- Standard footer icon, footer text, timestamp, images, and single-response behavior were checked in Discord.
+
+### Regression checks
+
+- Existing slash-command execution still works.
+- Existing prefix and natural-language adapters were not replaced.
+- Help still discovers registered commands automatically.
+- AutoMod processing and logging remain active for non-exempt members.
+- No temporary diagnostic or deletion-tracing code remains.
+- No duplicate bot responses were observed.
+
+### Known limitations
+
+- The shared helper standardizes color, footer, server context, and timestamp; command-specific authors and relevant media must still be selected by each formatter.
+- Some older moderation embeds still need future command-specific author or thumbnail improvements.
+- Custom staff roles without moderation permissions are not configurable yet.
+- AutoMod settings still use synchronous JSON storage.
+- Automated tests have not been added.
+
+### Git
+
+- Feature branch: `feature/shared-embed-style`
+- Commit: pending
+- Remote feature push: pending
+- Main merge: pending
+
+### Product decisions recorded
+
+- The next feature is a paginated help overview using text-only `Previous` and `Next` buttons.
+- Pagination edits the existing message, shows `Page X of Y`, and disables unavailable directions.
+- The dedicated `serverowner` command follows the paginated help feature.
+- A proper mobile-first website will be built after the bot and shared configuration architecture are stable.
+- Discord will retain essential moderation and AutoMod enable/disable/status controls.
+- Detailed customization will move to the website dashboard and use the same underlying configuration as Discord commands.
+
+### Next recommended feature
+
+- Paginated help overview with `Previous` and `Next` buttons.
+- Then build the dedicated `serverowner` command.
+
 
 ## 2026-07-24 — Shared server-member resolver
 

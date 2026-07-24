@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -54,8 +57,13 @@ module.exports = {
                 reason: reason
             });
 
-            const embed = new EmbedBuilder()
-                .setColor('#5865F2')
+            const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                 .setTitle('Member Banned')
                 .setDescription(
                     `${user} has been banned from the server.`
@@ -76,12 +84,7 @@ module.exports = {
                         value: reason,
                         inline: false
                     }
-                )
-                .setFooter({
-                    text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                    iconURL: interaction.client.user.displayAvatarURL()
-                })
-                .setTimestamp();
+                );
 
             await interaction.reply({
                 embeds: [embed]

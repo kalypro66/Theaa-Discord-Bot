@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const { sendLog } = require('../../utils/logger');
 
@@ -78,8 +81,13 @@ module.exports = {
 
         await member.roles.add(role);
 
-        const embed = new EmbedBuilder()
-            .setColor('#5865F2')
+        const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
             .setTitle('Role Added')
             .addFields(
                 {
@@ -97,12 +105,7 @@ module.exports = {
                     value: `${interaction.user}`,
                     inline: true
                 }
-            )
-            .setFooter({
-                text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
         await interaction.reply({
             embeds: [embed]

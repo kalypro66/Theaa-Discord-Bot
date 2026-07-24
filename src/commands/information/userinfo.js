@@ -1,7 +1,10 @@
 const {
-    SlashCommandBuilder,
-    EmbedBuilder
+    SlashCommandBuilder
 } = require("discord.js");
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const {
     resolveMember,
@@ -90,10 +93,16 @@ function buildUserInfoEmbed({
             0
         );
 
-    return new EmbedBuilder()
-        .setColor(
-            "#00D9E6"
-        )
+    return createStandardEmbed(
+        {
+            client,
+            guild
+        },
+        {
+            color:
+                "#00D9E6"
+        }
+    )
         .setAuthor({
             name:
                 user.username,
@@ -153,15 +162,7 @@ function buildUserInfoEmbed({
                 value:
                     roles
             }
-        )
-        .setFooter({
-            text:
-                `${client.user.username} | ${guild.name}`,
-
-            iconURL:
-                client.user.displayAvatarURL()
-        })
-        .setTimestamp();
+        );
 }
 
 async function run(context)

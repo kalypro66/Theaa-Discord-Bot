@@ -1,12 +1,7 @@
 const {
-    EmbedBuilder
-} = require("discord.js");
-
-const EMBED_COLOR =
-    "#5865F2";
-
-const ERROR_COLOR =
-    "#ED4245";
+    createStandardEmbed,
+    ERROR_EMBED_COLOR
+} = require("../discord/embeds/embedStyle");
 
 const MAX_FIELD_LENGTH =
     1024;
@@ -115,22 +110,24 @@ function formatTriggers(triggers)
 
 function createOverviewEmbed({
     client,
+    guild,
     prefix,
     groups,
     totalCommands
 })
 {
     const embed =
-        new EmbedBuilder()
-            .setColor(
-                EMBED_COLOR
-            )
+        createStandardEmbed({
+            client,
+            guild
+        })
             .setTitle(
                 "Theaa Help"
             )
             .setDescription(
                 [
                     "Commands are generated automatically from Theaa's registry.",
+                    `Registered commands: **${totalCommands}**.`,
                     "",
                     `For command details, use \`/help command:<name>\` or \`${prefix}help <name>\`.`
                 ].join("\n")
@@ -207,29 +204,20 @@ function createOverviewEmbed({
         });
     }
 
-    embed
-        .setFooter({
-            text:
-                `${client.user.username} | ${totalCommands} commands`,
-
-            iconURL:
-                client.user.displayAvatarURL()
-        })
-        .setTimestamp();
-
     return embed;
 }
 
 function createCommandEmbed({
     client,
+    guild,
     prefix,
     command
 })
 {
-    return new EmbedBuilder()
-        .setColor(
-            EMBED_COLOR
-        )
+    return createStandardEmbed({
+        client,
+        guild
+    })
         .setTitle(
             `Command: ${command.name}`
         )
@@ -301,27 +289,26 @@ function createCommandEmbed({
                 inline:
                     false
             }
-        )
-        .setFooter({
-            text:
-                client.user.username,
-
-            iconURL:
-                client.user.displayAvatarURL()
-        })
-        .setTimestamp();
+        );
 }
 
 function createNotFoundEmbed({
     client,
+    guild,
     query,
     prefix
 })
 {
-    return new EmbedBuilder()
-        .setColor(
-            ERROR_COLOR
-        )
+    return createStandardEmbed(
+        {
+            client,
+            guild
+        },
+        {
+            color:
+                ERROR_EMBED_COLOR
+        }
+    )
         .setTitle(
             "Command not found"
         )
@@ -331,14 +318,7 @@ function createNotFoundEmbed({
                 "",
                 `Use \`${prefix}help\` to view all available commands.`
             ].join("\n")
-        )
-        .setFooter({
-            text:
-                client.user.username,
-
-            iconURL:
-                client.user.displayAvatarURL()
-        });
+        );
 }
 
 module.exports = {

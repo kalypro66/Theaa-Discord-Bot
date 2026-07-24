@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const fs = require('fs');
 const path = require('path');
@@ -94,8 +97,13 @@ module.exports = {
                 JSON.stringify(data, null, 4)
             );
 
-            const embed = new EmbedBuilder()
-                .setColor('#5865F2')
+            const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                 .setTitle('AutoMod Updated')
                 .setDescription(
                     `**${feature.charAt(0).toUpperCase() + feature.slice(1)}** has been **${sub === 'enable' ? 'Enabled' : 'Disabled'}**.`
@@ -104,20 +112,20 @@ module.exports = {
                     name: 'Moderator',
                     value: `${interaction.user}`,
                     inline: true
-                })
-                .setFooter({
-                    text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                    iconURL: interaction.client.user.displayAvatarURL()
-                })
-                .setTimestamp();
+                });
 
             return interaction.reply({
                 embeds: [embed]
             });
 
         }
-                const embed = new EmbedBuilder()
-            .setColor('#5865F2')
+                const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
             .setTitle('🛡️ AutoMod Status')
             .addFields(
                 {
@@ -145,12 +153,7 @@ module.exports = {
                     value: settings.everyone ? '🟢 Enabled' : '🔴 Disabled',
                     inline: true
                 }
-            )
-            .setFooter({
-                text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
         return interaction.reply({
             embeds: [embed]

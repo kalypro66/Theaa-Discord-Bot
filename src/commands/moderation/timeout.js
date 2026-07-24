@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -65,8 +68,13 @@ module.exports = {
                 reason
             );
 
-            const embed = new EmbedBuilder()
-                .setColor('#5865F2')
+            const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                 .setTitle('Member Timed Out')
                 .setDescription(
                     `${user} has been timed out.`
@@ -92,12 +100,7 @@ module.exports = {
                         value: reason,
                         inline: false
                     }
-                )
-                .setFooter({
-                    text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                    iconURL: interaction.client.user.displayAvatarURL()
-                })
-                .setTimestamp();
+                );
 
             await interaction.reply({
                 embeds: [embed]

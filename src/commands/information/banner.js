@@ -1,7 +1,10 @@
 const {
-    SlashCommandBuilder,
-    EmbedBuilder
+    SlashCommandBuilder
 } = require("discord.js");
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const {
     resolveMember,
@@ -49,10 +52,10 @@ async function buildBannerEmbed({
         });
 
     const embed =
-        new EmbedBuilder()
-            .setColor(
-                "#5865F2"
-            )
+        createStandardEmbed({
+            client,
+            guild
+        })
             .setAuthor({
                 name:
                     `${user.username}'s Banner`,
@@ -65,15 +68,7 @@ async function buildBannerEmbed({
             })
             .setImage(
                 bannerURL
-            )
-            .setFooter({
-                text:
-                    `${client.user.username} | ${guild.name}`,
-
-                iconURL:
-                    client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
     return {
         embeds: [

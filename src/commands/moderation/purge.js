@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const { sendLog } = require('../../utils/logger');
 
@@ -30,8 +33,13 @@ module.exports = {
 
             const deleted = await interaction.channel.bulkDelete(amount, true);
 
-            const embed = new EmbedBuilder()
-                .setColor('#5865F2')
+            const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                 .setTitle('Messages Deleted')
                 .addFields(
                     {
@@ -49,12 +57,7 @@ module.exports = {
                         value: `${deleted.size} message(s)`,
                         inline: true
                     }
-                )
-                .setFooter({
-                    text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                    iconURL: interaction.client.user.displayAvatarURL()
-                })
-                .setTimestamp();
+                );
 
             const reply = await interaction.reply({
                 embeds: [embed],

@@ -1,12 +1,15 @@
 const {
     SlashCommandBuilder,
     PermissionFlagsBits,
-    EmbedBuilder,
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
     ChannelType
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const { sendLog } = require('../../utils/logger');
 
@@ -20,17 +23,17 @@ module.exports = {
 
     async execute(interaction) {
 
-        const embed = new EmbedBuilder()
-            .setColor('#ED4245')
+        const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#ED4245'
+                }
+            )
             .setTitle('Confirm Nuke')
             .setDescription(
                 'Are you sure you want to permanently reset this channel?\n\nThis action cannot be undone.'
-            )
-            .setFooter({
-                text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
         const row = new ActionRowBuilder()
             .addComponents(
@@ -96,17 +99,17 @@ module.exports = {
                     `Channel nuked by ${interaction.user.tag}`
                 );
 
-                const successEmbed = new EmbedBuilder()
-                    .setColor('#5865F2')
+                const successEmbed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                     .setTitle('Channel Nuked')
                     .setDescription(
                         `This channel has been reset by ${interaction.user}.`
-                    )
-                    .setFooter({
-                        text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                        iconURL: interaction.client.user.displayAvatarURL()
-                    })
-                    .setTimestamp();
+                    );
 
                 await newChannel.send({
                     embeds: [successEmbed]

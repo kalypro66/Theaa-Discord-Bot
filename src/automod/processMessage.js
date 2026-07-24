@@ -1,7 +1,10 @@
 const {
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require("discord.js");
+
+const {
+    createStandardEmbed
+} = require("../discord/embeds/embedStyle");
 
 const fs =
     require("node:fs");
@@ -89,13 +92,31 @@ module.exports = async function processMessage(
     if (!member)
         return false;
 
+    const isServerOwner =
+        message.author.id ===
+        message.guild.ownerId;
+
+    const staffPermissions = [
+        PermissionFlagsBits.Administrator,
+        PermissionFlagsBits.ManageGuild,
+        PermissionFlagsBits.ManageMessages,
+        PermissionFlagsBits.ModerateMembers,
+        PermissionFlagsBits.KickMembers,
+        PermissionFlagsBits.BanMembers,
+        PermissionFlagsBits.ManageRoles
+    ];
+
+    const isStaff =
+        staffPermissions.some(
+            permission =>
+                member.permissions.has(
+                    permission
+                )
+        );
+
     if (
-        member.permissions.has(
-            PermissionFlagsBits.Administrator
-        ) ||
-        member.permissions.has(
-            PermissionFlagsBits.ManageMessages
-        )
+        isServerOwner ||
+        isStaff
     )
     {
         return false;
@@ -151,8 +172,19 @@ module.exports = async function processMessage(
                     : originalContent;
 
             const embed =
-                new EmbedBuilder()
-                    .setColor("Red")
+                createStandardEmbed(
+                    {
+                        client:
+                            message.client,
+
+                        guild:
+                            message.guild
+                    },
+                    {
+                        color:
+                            "Red"
+                    }
+                )
                     .setTitle(
                         `AutoMod | ${feature}`
                     )
@@ -184,15 +216,7 @@ module.exports = async function processMessage(
                             value:
                                 displayedContent
                         }
-                    )
-                    .setTimestamp()
-                    .setFooter({
-                        text:
-                            message.guild.name,
-
-                        iconURL:
-                            message.guild.iconURL()
-                    });
+                    );
 
             await logChannel.send({
                 embeds:

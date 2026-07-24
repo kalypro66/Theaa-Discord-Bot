@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -51,8 +54,13 @@ module.exports = {
         try {
             await member.kick(reason);
 
-            const embed = new EmbedBuilder()
-                .setColor('#5865F2')
+            const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
                 .setTitle('Member Kicked')
                 .setDescription(
                     `${user} has been kicked from the server.`
@@ -73,12 +81,7 @@ module.exports = {
                         value: reason,
                         inline: false
                     }
-                )
-                .setFooter({
-                    text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                    iconURL: interaction.client.user.displayAvatarURL()
-                })
-                .setTimestamp();
+                );
 
             await interaction.reply({
                 embeds: [embed]
