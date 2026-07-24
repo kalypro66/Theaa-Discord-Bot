@@ -1,7 +1,10 @@
 const {
-    SlashCommandBuilder,
-    EmbedBuilder
+    SlashCommandBuilder
 } = require("discord.js");
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 module.exports = {
 
@@ -103,8 +106,12 @@ module.exports = {
             );
 
         const embed =
-            new EmbedBuilder()
-                .setColor("#5865F2")
+            createStandardEmbed({
+                client:
+                    ctx.client,
+
+                guild
+            })
                 .setAuthor({
 
                     name: guild.name,
@@ -202,16 +209,7 @@ module.exports = {
 
                     }
 
-                )
-                .setFooter({
-
-                    text:
-`${ctx.client.user.username} | ${guild.name}`,
-
-                    iconURL:
-                        ctx.client.user.displayAvatarURL()
-
-                });
+                );
 
         return embed;
 

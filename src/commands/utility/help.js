@@ -45,6 +45,9 @@ async function run(context)
                         client:
                             context.client,
 
+                        guild:
+                            context.guild,
+
                         query,
 
                         prefix
@@ -63,6 +66,9 @@ async function run(context)
                 createCommandEmbed({
                     client:
                         context.client,
+
+                    guild:
+                        context.guild,
 
                     prefix,
 
@@ -86,8 +92,11 @@ async function run(context)
     return {
         embeds: [
             createOverviewEmbed({
-                client:
-                    context.client,
+                    client:
+                        context.client,
+
+                    guild:
+                        context.guild,
 
                 prefix,
 

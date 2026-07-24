@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -92,8 +95,13 @@ module.exports = {
         const warningCount =
             warnings[guildId][user.id].length;
 
-        const embed = new EmbedBuilder()
-            .setColor('#5865F2')
+        const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
             .setTitle('Member Warned')
             .setDescription(
                 `${user} has received a warning.`
@@ -119,12 +127,7 @@ module.exports = {
                     value: reason,
                     inline: false
                 }
-            )
-            .setFooter({
-                text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
         await interaction.reply({
             embeds: [embed]

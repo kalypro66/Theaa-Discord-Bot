@@ -1,8 +1,11 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
+
+const {
+    createStandardEmbed
+} = require("../../discord/embeds/embedStyle");
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -40,17 +43,17 @@ module.exports = {
             JSON.stringify(logs, null, 4)
         );
 
-        const embed = new EmbedBuilder()
-            .setColor('#5865F2')
+        const embed = createStandardEmbed(
+                interaction,
+                {
+                    color:
+                        '#5865F2'
+                }
+            )
             .setTitle('Log Channel Updated')
             .setDescription(
                 `${channel} is now the server log channel.`
-            )
-            .setFooter({
-                text: `${interaction.client.user.username} | ${interaction.guild.name}`,
-                iconURL: interaction.client.user.displayAvatarURL()
-            })
-            .setTimestamp();
+            );
 
         await interaction.reply({
             embeds: [embed]

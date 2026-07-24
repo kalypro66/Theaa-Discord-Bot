@@ -100,7 +100,7 @@ Approved order:
 - [ ] Add confirmation prompts
 - [ ] Add audit logging
 - [ ] Add consistent errors
-- [ ] Add shared embed defaults for colors, footers, server context, and timestamps
+- [x] Add shared embed defaults for colors, footers, server context, and timestamps
 - [x] Auto-generate help from command metadata
 - [~] Preserve slash and prefix compatibility — verified for avatar
 
@@ -459,6 +459,10 @@ Add:
 
 - [ ] Discord OAuth and guild permission verification
 - [ ] Mobile-first interface
+- [ ] Shared configuration service and database used by both the bot and dashboard
+- [ ] Keep essential Discord controls for moderation, AutoMod enable/disable/status, emergency setup, and basic status checks
+- [ ] Move detailed customization for AutoMod, logging, staff roles, commands, welcome systems, tickets, AI, and analytics to the website
+- [ ] Re-check guild permissions on every dashboard configuration change
 - [ ] Commands, AI, providers, automod, logging, roles, tickets, cases, memory, analytics, and secure API
 
 # Phase 14 — Voice and Advanced Media
@@ -481,9 +485,11 @@ Add:
 5. [ ] Add shared permission and hierarchy validation
 6. [x] Convert `avatar` as the reference action
 7. [x] Preserve slash and prefix behavior for the avatar reference action
-8. [ ] Auto-generate help
-9. [ ] Begin Core Command Parity
-10. [~] Natural-language routing verified for avatar; remaining actions require conversion
+8. [x] Auto-generate help
+9. [x] Add shared embed defaults and migrate existing command embeds
+10. [ ] Add paginated Previous/Next navigation to the help overview
+11. [ ] Begin Core Command Parity
+12. [~] Natural-language routing verified for avatar; remaining actions require conversion
 
 # Completion Report
 
