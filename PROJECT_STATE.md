@@ -349,7 +349,7 @@ Add new entries at the top.
 
 ## 2026-07-24 — Auto-generated command help
 
-**Status:** Complete, manually verified, committed, and pushed to the feature branch.
+**Status:** Complete, manually verified, committed, pushed, merged into `main`, and remotely verified.
 
 ### What changed
 
@@ -385,7 +385,7 @@ Add new entries at the top.
 - Feature branch: feature/auto-generated-help
 - Code commit: e736514
 - Remote feature push: verified
-- Main merge: pending completion of documentation commit
+- Main merge: complete and remotely verified at `a72e365`
 
 ### Known limitations
 
