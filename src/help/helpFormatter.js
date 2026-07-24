@@ -108,7 +108,7 @@ function formatTriggers(triggers)
         .join("\n");
 }
 
-function createOverviewEmbed({
+function createOverviewPages({
     client,
     guild,
     prefix,
@@ -116,95 +116,120 @@ function createOverviewEmbed({
     totalCommands
 })
 {
-    const embed =
-        createStandardEmbed({
-            client,
-            guild
-        })
-            .setTitle(
-                "Theaa Help"
+    const firstPageCategories =
+        new Set([
+            "utility",
+            "information",
+            "server"
+        ]);
+
+    const pageGroups = [
+        groups.filter(group =>
+            firstPageCategories.has(
+                group.category
             )
-            .setDescription(
-                [
-                    "Commands are generated automatically from Theaa's registry.",
-                    `Registered commands: **${totalCommands}**.`,
-                    "",
-                    `For command details, use \`/help command:<name>\` or \`${prefix}help <name>\`.`
-                ].join("\n")
-            );
+        ),
 
-    let fieldCount =
-        0;
-
-    for (const group of groups)
-    {
-        const lines =
-            group.commands.map(command =>
-            {
-                return (
-                    `\`${command.name}\` — ` +
-                    cleanDescription(
-                        command.description
-                    )
-                );
-            });
-
-        const chunks =
-            splitLines(
-                lines
-            );
-
-        for (
-            let index = 0;
-            index < chunks.length;
-            index++
+        groups.filter(group =>
+            !firstPageCategories.has(
+                group.category
+            )
         )
+    ].filter(page =>
+        page.length > 0
+    );
+
+    if (pageGroups.length === 0)
+    {
+        pageGroups.push([]);
+    }
+
+    const pageCount =
+        pageGroups.length;
+
+    return pageGroups.map(
+        (
+            page,
+            pageIndex
+        ) =>
         {
-            if (
-                fieldCount >=
-                MAX_FIELDS
-            )
+            const embed =
+                createStandardEmbed({
+                    client,
+                    guild
+                })
+                    .setTitle(
+                        "Theaa Help"
+                    )
+                    .setDescription(
+                        [
+                            "Commands are generated automatically from Theaa's registry.",
+                            `Registered commands: **${totalCommands}**.`,
+                            `Page **${pageIndex + 1} of ${pageCount}**.`,
+                            "",
+                            `For command details, use \`/help command:<name>\` or \`${prefix}help <name>\`.`
+                        ].join("\n")
+                    );
+
+            let fieldCount =
+                0;
+
+            for (const group of page)
             {
-                break;
+                const lines =
+                    group.commands.map(command =>
+                    {
+                        return (
+                            `\`${command.name}\` — ` +
+                            cleanDescription(
+                                command.description
+                            )
+                        );
+                    });
+
+                const chunks =
+                    splitLines(
+                        lines
+                    );
+
+                for (
+                    let index = 0;
+                    index < chunks.length &&
+                    fieldCount < MAX_FIELDS;
+                    index++
+                )
+                {
+                    embed.addFields({
+                        name:
+                            index === 0
+                                ? group.label
+                                : `${group.label} continued`,
+
+                        value:
+                            chunks[index],
+
+                        inline:
+                            false
+                    });
+
+                    fieldCount++;
+                }
             }
 
-            embed.addFields({
-                name:
-                    index === 0
-                        ? group.label
-                        : `${group.label} continued`,
+            if (fieldCount === 0)
+            {
+                embed.addFields({
+                    name:
+                        "Commands",
 
-                value:
-                    chunks[index],
+                    value:
+                        "No commands are currently registered."
+                });
+            }
 
-                inline:
-                    false
-            });
-
-            fieldCount++;
+            return embed;
         }
-
-        if (
-            fieldCount >=
-            MAX_FIELDS
-        )
-        {
-            break;
-        }
-    }
-
-    if (fieldCount === 0)
-    {
-        embed.addFields({
-            name:
-                "Commands",
-
-            value:
-                "No commands are currently registered."
-        });
-    }
-
-    return embed;
+    );
 }
 
 function createCommandEmbed({
@@ -322,7 +347,7 @@ function createNotFoundEmbed({
 }
 
 module.exports = {
-    createOverviewEmbed,
+    createOverviewPages,
     createCommandEmbed,
     createNotFoundEmbed
 };

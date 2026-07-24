@@ -9,10 +9,14 @@ const {
 } = require("../../help/helpService");
 
 const {
-    createOverviewEmbed,
+    createOverviewPages,
     createCommandEmbed,
     createNotFoundEmbed
 } = require("../../help/helpFormatter");
+
+const {
+    createPaginatedHelpResult
+} = require("../../help/helpPagination");
 
 const {
     getPrefix
@@ -89,29 +93,29 @@ async function run(context)
     const groups =
         getGroupedCommands();
 
-    return {
-        embeds: [
-            createOverviewEmbed({
-                    client:
-                        context.client,
+    const pages =
+        createOverviewPages({
+            client:
+                context.client,
 
-                    guild:
-                        context.guild,
+            guild:
+                context.guild,
 
-                prefix,
+            prefix,
 
-                groups,
+            groups,
 
-                totalCommands:
-                    commands.length
-            })
-        ],
+            totalCommands:
+                commands.length
+        });
 
-        allowedMentions: {
-            repliedUser:
-                false
-        }
-    };
+    return createPaginatedHelpResult({
+        pages,
+
+        userId:
+            context.user.id
+    });
+
 }
 
 module.exports = {
@@ -185,8 +189,30 @@ module.exports = {
                         : []
             });
 
-        await interaction.reply(
-            reply
-        );
+        const {
+            afterReply,
+            ...replyOptions
+        } = reply;
+
+        const response =
+            await interaction.reply({
+                ...replyOptions,
+                withResponse:
+                    true
+            });
+
+        const replyMessage =
+            response.resource?.message ||
+            await interaction.fetchReply();
+
+        if (
+            typeof afterReply ===
+            "function"
+        )
+        {
+            await afterReply(
+                replyMessage
+            );
+        }
     }
 };

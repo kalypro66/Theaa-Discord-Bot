@@ -48,11 +48,15 @@ module.exports = {
                     .setStyle(ButtonStyle.Secondary)
             );
 
-        const reply = await interaction.reply({
+        const response = await interaction.reply({
             embeds: [embed],
             components: [row],
-            fetchReply: true
+            withResponse: true
         });
+
+        const reply =
+            response.resource?.message ||
+            await interaction.fetchReply();
 
         const collector = reply.createMessageComponentCollector({
             time: 30000

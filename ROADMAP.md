@@ -487,8 +487,8 @@ Add:
 7. [x] Preserve slash and prefix behavior for the avatar reference action
 8. [x] Auto-generate help
 9. [x] Add shared embed defaults and migrate existing command embeds
-10. [ ] Add paginated Previous/Next navigation to the help overview
-11. [ ] Begin Core Command Parity
+10. [x] Add paginated Previous/Next navigation to the help overview
+11. [ ] Convert every existing command to shared multi-entry action parity
 12. [~] Natural-language routing verified for avatar; remaining actions require conversion
 
 # Completion Report

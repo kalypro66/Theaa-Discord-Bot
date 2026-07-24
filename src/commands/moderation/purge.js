@@ -59,10 +59,14 @@ module.exports = {
                     }
                 );
 
-            const reply = await interaction.reply({
+            const response = await interaction.reply({
                 embeds: [embed],
-                fetchReply: true
+                withResponse: true
             });
+
+            const reply =
+                response.resource?.message ||
+                await interaction.fetchReply();
 
             await sendLog(interaction, embed);
 

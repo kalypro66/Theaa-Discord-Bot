@@ -12,43 +12,54 @@ Stack: JavaScript, Node.js, discord.js
 5. Inspect the actual related code files
 
 ## Current Branch
-main
+feature/paginated-help
 
 ## Current Feature State
-Shared embed styling and the AutoMod staff exemptions are complete.
+Paginated help implementation and manual Discord verification are complete.
 
-Verified Git state:
-- Feature commit: `4b1c6ccfa64764955892b85225d66855a995f292`
-- Feature branch push: verified
-- Merge commit: `5e7c71ca889e71d7fe20903299d822344b87bae1`
-- Remote `main`: verified
-- Post-merge documentation correction: complete
+Pending:
+- Final documentation review
+- Commit
+- Feature-branch push
+- Remote feature verification
+- Merge into `main`
+- Remote `main` verification
+- Post-merge documentation correction
+- Final completion report
 
 ## Next Planned Feature
-Paginated help overview using text-only Previous and Next buttons.
+Existing Command Parity.
 
-Confirmed behavior:
-- Edit the same help message
-- Show Page X of Y
-- Disable Previous on the first page
-- Disable Next on the final page
-- Keep /help command:<name> for detailed command information
-- Do not use emojis on the navigation buttons
+Required entry methods for every existing command:
+- Slash command
+- Prefix command
+- Bot mention
+- Reply to Theaa
+- Natural-language command
+- Detailed help lookup
+
+Required architecture:
+- One shared `run(context)` or equivalent action implementation
+- Slash and message adapters call the same action
+- Identical permissions, hierarchy checks, errors, embeds, and logging
+- Correct inaccurate command categories during the parity audit
+- Future commands follow this structure from their first implementation
 
 ## Previous Feature Completed
-Shared embed styling and AutoMod staff exemptions.
+Paginated help overview.
 
 Completed:
-- Added `src/discord/embeds/embedStyle.js`
-- Migrated information, moderation, help, and AutoMod log embeds
-- Standardized the exact `Theaa | Server Name` footer
-- Added automatic timestamps through the shared helper
-- Preserved command-specific colors and media
-- Exempted the server owner and recognized moderation staff from AutoMod
-- Manually verified avatar, serverinfo, help, help errors, and AutoMod status
-- Committed as `4b1c6cc`
-- Merged into `main` as `5e7c71c`
-- Feature branch and remote `main` verified
+- Added `src/help/helpPagination.js`
+- Added a two-page category layout
+- Added text-only Previous and Next buttons
+- Added Page X of Y
+- Added requester-only button controls
+- Added a ten-minute collector lifetime
+- Added shared `afterReply` handling
+- Fixed mention-based help arguments
+- Replaced deprecated interaction reply options
+- Verified all six help entry methods in Discord
+- Verified page navigation and disabled states
 
 ## Permanent Embed Rule
 Every new or modified embed must include:
@@ -60,12 +71,23 @@ Every new or modified embed must include:
 
 Use `src/discord/embeds/embedStyle.js` for standard color, footer, server context, and timestamp behavior.
 
+## Permanent Command Entry Rule
+Every existing and future command must support:
+- Slash
+- Prefix
+- Mention
+- Reply
+- Natural language
+- Detailed help lookup
+
+All entry methods must invoke the same action logic.
+
 ## Planned Next Features
-1. Paginated help overview
+1. Existing Command Parity
 2. Dedicated serverowner command
 3. Shared permission validation
 4. Shared role-hierarchy validation
-5. Core Command Parity pack
+5. Core Command Parity expansion
 
 ## Serverowner Decision
 The dedicated serverowner embed must show:

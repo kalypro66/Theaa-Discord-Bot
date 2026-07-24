@@ -33,9 +33,15 @@ module.exports = async function messageRouter(
 
     if (prefixCommand) {
 
+        const args =
+            content
+                .split(/\s+/)
+                .slice(1);
+
         await executeCommand(
             message,
-            prefixCommand
+            prefixCommand,
+            args
         );
 
         return {
