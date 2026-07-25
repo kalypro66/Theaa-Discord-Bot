@@ -2,51 +2,138 @@ const {
     SlashCommandBuilder
 } = require("discord.js");
 
-const askAI = require("../../ai/manager");
+const askAI =
+    require("../../ai/manager");
 
-module.exports = {
+async function run(context)
+{
+    const message =
+        (context.args || [])
+            .join(" ")
+            .trim();
 
-    data: new SlashCommandBuilder()
-        .setName("chat")
-        .setDescription("Chat with Thea.")
-        .addStringOption(option =>
-            option
-                .setName("message")
-                .setDescription("What do you want to say?")
-                .setRequired(true)
-        ),
+    if (!message)
+    {
+        return {
+            content:
+                "Tell me what you want to talk about.",
 
-    async execute(interaction) {
-
-        const message =
-            interaction.options.getString("message");
-
-        await interaction.deferReply();
-
-        try {
-
-            const reply = await askAI({
-                userId: interaction.user.id,
-                guildId: interaction.guild.id,
-                channelId: interaction.channel.id,
-                username: interaction.user.username,
-                message
-            });
-
-            await interaction.editReply({
-                content: reply
-            });
-
-        } catch (err) {
-
-            console.error(err);
-
-            await interaction.editReply({
-                content: "❌ Something went wrong while talking to Thea."
-            });
-
-        }
-
+            allowedMentions: {
+                repliedUser:
+                    false
+            }
+        };
     }
 
+    const reply =
+        await askAI({
+            userId:
+                context.user.id,
+
+            guildId:
+                context.guild.id,
+
+            channelId:
+                context.channel.id,
+
+            username:
+                context.member?.displayName ||
+                context.user.username,
+
+            message
+        });
+
+    return {
+        content:
+            reply,
+
+        allowedMentions: {
+            repliedUser:
+                false
+        }
+    };
+}
+
+module.exports = {
+    name:
+        "chat",
+
+    aliases: [
+        "ask theaa",
+        "talk to theaa"
+    ],
+
+    triggers: [
+        "chat with theaa",
+        "ask theaa",
+        "talk to theaa"
+    ],
+
+    category:
+        "general",
+
+    description:
+        "Chat with Theaa.",
+
+    permissions: [],
+
+    data:
+        new SlashCommandBuilder()
+            .setName(
+                "chat"
+            )
+            .setDescription(
+                "Chat with Theaa."
+            )
+            .addStringOption(option =>
+                option
+                    .setName(
+                        "message"
+                    )
+                    .setDescription(
+                        "What do you want to say?"
+                    )
+                    .setRequired(
+                        true
+                    )
+            ),
+
+    run,
+
+    async execute(interaction)
+    {
+        await interaction.deferReply();
+
+        const reply =
+            await run({
+                guild:
+                    interaction.guild,
+
+                member:
+                    interaction.member,
+
+                user:
+                    interaction.user,
+
+                channel:
+                    interaction.channel,
+
+                client:
+                    interaction.client,
+
+                message:
+                    null,
+
+                args: [
+                    interaction.options.getString(
+                        "message",
+                        true
+                    )
+                ]
+            });
+
+        await interaction.editReply(
+            reply
+        );
+    }
 };

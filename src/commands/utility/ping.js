@@ -1,21 +1,61 @@
-const { SlashCommandBuilder } = require("discord.js");
+const {
+    SlashCommandBuilder
+} = require("discord.js");
+
+async function run()
+{
+    return {
+        content:
+            "🏓 Pong!",
+
+        allowedMentions: {
+            repliedUser:
+                false
+        }
+    };
+}
 
 module.exports = {
+    name:
+        "ping",
 
-    data: new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("Replies with Pong!"),
+    aliases: [
+        "latency",
+        "botping"
+    ],
 
-    async execute(interaction) {
+    triggers: [
+        "check ping",
+        "show ping",
+        "check latency"
+    ],
 
-        await interaction.reply("🏓 Pong!");
+    category:
+        "utility",
 
-    },
+    description:
+        "Checks whether Theaa is responding.",
 
-    async executeMessage(message) {
+    permissions: [],
 
-        await message.reply("🏓 Pong!");
+    data:
+        new SlashCommandBuilder()
+            .setName(
+                "ping"
+            )
+            .setDescription(
+                "Replies with Pong!"
+            ),
 
+    run,
+
+    async execute(interaction)
+    {
+        const reply =
+            await run();
+
+        await interaction.reply(
+            reply
+        );
     }
-
 };
