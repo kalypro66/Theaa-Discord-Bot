@@ -1,4 +1,5 @@
 const {
+    DEVELOPER_ID,
     DEVELOPER_NAME,
     isDeveloper
 } = require(
@@ -21,11 +22,12 @@ function asksAboutDeveloper(text)
 
     return [
         /\bwho (made|created|developed|built) you\b/,
-        /\bwho is your (developer|creator|maker)\b/,
+        /\bwho is your (developer|creator|maker|owner)\b/,
+        /\bwho owns you\b/,
         /\bdid i (make|create|develop|build) you\b/,
-        /\bam i your (developer|creator|maker)\b/,
+        /\bam i your (developer|creator|maker|owner)\b/,
         /\b(tumhe|tujhe|aapko) kisne banaya\b/,
-        /\b(tumhara|tera|aapka) developer kaun( hai)?\b/,
+        /\b(tumhara|tera|aapka) (developer|owner) kaun( hai)?\b/,
         /\b(kya )?maine (tumhe|tujhe|aapko) banaya\b/,
         /किसने बनाया/u,
         /डेवलपर कौन/u,
@@ -70,30 +72,33 @@ function developerReply(context)
             context.message
         );
 
+    const developerMention =
+        `<@${DEVELOPER_ID}>`;
+
     if (language === "hindi")
     {
         return authorIsDeveloper
-            ? "हाँ, आपने मुझे बनाया है। आप ही मेरे डेवलपर हैं।"
-            : `${DEVELOPER_NAME} मेरे डेवलपर हैं।`;
+            ? `हाँ, आपने मुझे बनाया है। आप ही मेरे डेवलपर हैं, ${developerMention}।`
+            : `${developerMention} मेरे डेवलपर हैं।`;
     }
 
     if (language === "urdu")
     {
         return authorIsDeveloper
-            ? "ہاں، آپ نے مجھے بنایا ہے۔ آپ ہی میرے ڈویلپر ہیں۔"
-            : `${DEVELOPER_NAME} میرے ڈویلپر ہیں۔`;
+            ? `ہاں، آپ نے مجھے بنایا ہے۔ آپ ہی میرے ڈویلپر ہیں، ${developerMention}۔`
+            : `${developerMention} میرے ڈویلپر ہیں۔`;
     }
 
     if (language === "roman-urdu")
     {
         return authorIsDeveloper
-            ? "Haan, tumne mujhe banaya hai. Tum hi mere developer ho."
-            : `${DEVELOPER_NAME} mere developer hain.`;
+            ? `Haan, tumne mujhe banaya hai. Tum hi mere developer ho, ${developerMention}.`
+            : `${developerMention} mere developer hain.`;
     }
 
     return authorIsDeveloper
-        ? "Yeah. You made me—you’re my developer."
-        : `${DEVELOPER_NAME} is my developer.`;
+        ? `Yeah. You made me—you’re my developer, ${developerMention}.`
+        : `${developerMention} is my developer.`;
 }
 
 function getProtectedResponse(context)
