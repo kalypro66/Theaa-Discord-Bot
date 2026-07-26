@@ -7,6 +7,17 @@ const {
     "./protectedResponses"
 );
 
+function normalizeReply(reply)
+{
+    if (typeof reply !== "string")
+        return reply;
+
+    return reply.replace(
+        /^(?:Theaa|Thea):\s*/,
+        ""
+    );
+}
+
 async function askAI(context)
 {
     const protectedReply =
@@ -15,7 +26,9 @@ async function askAI(context)
         );
 
     if (protectedReply)
-        return protectedReply;
+        return normalizeReply(
+            protectedReply
+        );
 
     try
     {
@@ -25,9 +38,11 @@ async function askAI(context)
             );
 
         if (result.success)
-            return result.reply;
+            return normalizeReply(
+                result.reply
+            );
 
-        return (
+        return normalizeReply(
             result.reply ||
             "Every AI provider is unavailable right now."
         );
