@@ -4,7 +4,7 @@
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
 **Environment:** Android, Acode, Termux  
 **Stack:** JavaScript, Node.js, discord.js  
-**Updated:** 2026-07-25
+**Updated:** 2026-07-26
 
 # 1. Mandatory Procedure
 
@@ -205,6 +205,7 @@ Legend:
 - [~] Shared action contract — avatar, banner, and userinfo use shared member resolution
 - [~] Deterministic local natural-language routing
 - [x] Typing indicator for mention, reply, and prefix processing
+- [~] Existing Command Parity — `ping`, `setprefix`, and `chat` use shared `run(context)` implementations on the feature branch; remaining commands and centralized adapters are incomplete
 
 ## Utility
 
@@ -245,8 +246,10 @@ Legend:
 - [~] Chat slash command
 - [~] Message AI conversation
 - [~] In-memory history
+- [~] Protected developer identity responses — present and pushed on the feature branch; merge and full regression remain
+- [~] Exact leading `Theaa:` / `Thea:` reply cleanup — present and pushed on the feature branch; merge remains
 
-Important: current memory is not persistent and is lost on restart.
+Important: current memory is not persistent, is keyed only by guild ID on the remote branch, and is lost on restart.
 
 # 8. Runtime Data
 
@@ -286,7 +289,9 @@ Real guild, channel, user, prefix, and moderation data is tracked publicly. Repl
 | `src/help/helpService.js` | Read, group, and search registered command metadata | Discord embed formatting |
 | `src/help/helpFormatter.js` | Build help overview, detail, and error embeds | Command discovery or routing |
 | `src/discord/embeds/embedStyle.js` | Create standard embed colors, Theaa footer context, and timestamps | Command-specific business logic |
-| `src/ai/manager.js` | AI orchestration | Direct Discord actions |
+| `src/ai/manager.js` | AI orchestration and final reply normalization | Direct Discord actions |
+| `src/ai/protectedResponses.js` | Deterministic protected identity responses | Provider calls or Discord mutations |
+| `src/config/developer.js` | Developer ID/name configuration and identity check | Command execution |
 | `src/ai/providerManager.js` | Provider selection/fallback | Discord execution |
 | `src/ai/gemini.js` | Gemini adapter | Routing |
 | `src/ai/groq.js` | Groq adapter | Routing |
@@ -306,13 +311,14 @@ Update this registry whenever responsibilities change.
 - [x] Prefix and AI routing now share one controlled event flow
 - [ ] Commands may mix parsing, validation, execution, and replies
 - [ ] Memory resets on restart
-- [ ] Memory may be scoped too broadly
+- [ ] Remote memory is scoped only by guild ID and can leak context across channels/users inside one guild
 - [ ] Runtime data is committed
 - [ ] Slash commands are guild-only
 - [ ] No automated tests
 - [ ] `npm test` currently fails intentionally
 - [ ] Provider fallback needs verification
-- [ ] Prompt and future modules may be empty placeholders
+- [ ] The remote prompt index contains conflicting exports and requires cleanup before prompt hardening can be claimed
+- [ ] The phone contains many uncommitted and untracked source changes that are not part of the GitHub branch until reviewed and pushed
 - [x] Help is generated automatically from registered command metadata
 
 # 11. Approved Build Strategy
@@ -335,8 +341,8 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 - [x] Document exact message flow
 - [x] Verify and remove duplicate processing
-- [~] Inventory commands and dependencies — information and embed-producing commands reviewed
-- [ ] Define shared action contract
+- [~] Inventory commands and dependencies — remote branch audit updated; phone-only adapter/validation changes still require inspection
+- [~] Define shared action contract — `run(context)` is established for avatar, ping, setprefix, and chat; centralized defaults/adapters are not on GitHub
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
 - [x] Convert `avatar` as the reference action
@@ -344,11 +350,57 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [x] Auto-generate help
 - [x] Add shared embed defaults and migrate existing command embeds
 - [x] Add paginated Previous/Next help navigation
-- [ ] Begin Core Command Parity
+- [~] Existing Command Parity in progress — ping, setprefix, and chat converted; remaining existing commands are pending
 
 # 13. Feature History
 
 Add new entries at the top.
+
+## 2026-07-26 — Existing Command Parity branch audit and AI response protections
+
+**Status:** In progress on `feature/existing-command-parity`; pushed but not merged into `main`.
+
+### Latest remote state
+
+- Branch head: `f264af8f7e1b5ee44f76e77c352cee7742775e91`
+- Branch is four commits ahead of `main`.
+- Latest commit removes only an exact leading `Theaa:` or `Thea:` from AI replies.
+
+### Files added on the feature branch
+
+- `src/ai/protectedResponses.js`
+- `src/config/developer.js`
+
+### Files changed on the feature branch
+
+- `src/ai/manager.js`
+- `src/commands/ai/chat.js`
+- `src/commands/utility/ping.js`
+- `src/commands/utility/setprefix.js`
+
+### Verified from GitHub source
+
+- Paginated help, shared embed styling, and shared member resolution remain present.
+- Ping, setprefix, and chat expose shared `run(context)` implementations.
+- Protected developer/owner questions are handled deterministically.
+- The configured developer Discord ID is mentioned in protected replies.
+- Protected replies detect English, Hindi, Urdu, and Roman Urdu.
+- Final AI reply normalization strips only a leading `Theaa:` or `Thea:`.
+
+### Not present or not verified on GitHub
+
+- Central slash/message adapter files, command defaults, and validation files shown as phone-only untracked work.
+- Improved memory isolation; remote memory is still keyed only by guild ID.
+- Prompt hardening; the remote prompt index has conflicting exports.
+- Invoking-moderator kick hierarchy validation; remote kick checks only bot kickability.
+- Custom emojis; postponed until files and IDs are supplied.
+
+### Next action
+
+- Inspect a focused phone diff or backup archive.
+- Finish the command/dependency inventory.
+- Separate phone-only work into reviewable commits.
+- Continue converting remaining commands to shared multi-entry action parity.
 
 ## 2026-07-25 — Paginated help overview
 

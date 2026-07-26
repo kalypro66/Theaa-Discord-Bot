@@ -4,7 +4,7 @@
 **Stack:** JavaScript, Node.js, discord.js  
 **Environment:** Android, Acode, Termux  
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
-**Updated:** 2026-07-24
+**Updated:** 2026-07-26
 
 ## Vision
 
@@ -400,6 +400,8 @@ Add:
 - [ ] Animated emoji handling
 - [ ] Sticker names, descriptions, artwork, and emotion
 
+> Custom emoji implementation is postponed until the emoji files and Discord emoji IDs are supplied.
+
 ## Files, audio, and video
 
 - [ ] Text, code, JSON, and supported documents
@@ -480,16 +482,34 @@ Add:
 
 1. [x] Document current execution flow
 2. [x] Verify and remove duplicate message handling
-3. [ ] Inventory every command and dependency
-4. [ ] Define shared action contract
+3. [~] Inventory every command and dependency — remote audit started; phone-only files still require reconciliation
+4. [~] Define shared action contract — `run(context)` exists for avatar, ping, setprefix, and chat; centralized adapters/defaults are not on GitHub
 5. [ ] Add shared permission and hierarchy validation
 6. [x] Convert `avatar` as the reference action
 7. [x] Preserve slash and prefix behavior for the avatar reference action
 8. [x] Auto-generate help
 9. [x] Add shared embed defaults and migrate existing command embeds
 10. [x] Add paginated Previous/Next navigation to the help overview
-11. [ ] Convert every existing command to shared multi-entry action parity
-12. [~] Natural-language routing verified for avatar; remaining actions require conversion
+11. [~] Convert every existing command to shared multi-entry action parity — ping, setprefix, and chat are converted on the feature branch
+12. [~] Natural-language routing is structurally available for avatar, ping, setprefix, and chat; full manual parity regression remains
+
+## 2026-07-26 Branch Audit
+
+Verified on `feature/existing-command-parity`:
+
+- Paginated automatic help, shared embed styling, and the shared member resolver remain present.
+- `ping`, `setprefix`, and `chat` use shared `run(context)` implementations.
+- Protected developer/owner responses mention the configured developer ID and support English, Hindi, Urdu, and Roman Urdu.
+- AI reply cleanup removes only an exact leading `Theaa:` or `Thea:`.
+
+Not present on the remote branch:
+
+- Central slash/message adapter files and command defaults seen as phone-only untracked work.
+- Improved memory isolation and prompt hardening.
+- Invoking-moderator kick hierarchy validation.
+- Custom emoji configuration or assets.
+
+Exact next task: finish the command/dependency inventory, inspect and separate the phone-only changes, then continue converting the remaining existing commands to shared multi-entry parity.
 
 # Completion Report
 
