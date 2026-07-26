@@ -1,150 +1,171 @@
-module.exports = async function executeCommand(
+const createMessageInteraction =
+    require("./messageInteractionAdapter");
+
+function createRunContext(
     message,
-    command,
-    providedArgs = null
-) {
+    args
+)
+{
+    return {
+        guild:
+            message.guild,
+        member:
+            message.member,
+        user:
+            message.author,
+        channel:
+            message.channel,
+        client:
+            message.client,
+        message,
+        args
+    };
+}
 
-    /*
-    --------------------------------
-    Arguments
-    --------------------------------
-    */
+async function sendRunResult(
+    message,
+    result
+)
+{
+    if (!result)
+        return null;
 
-    const args =
-        Array.isArray(providedArgs)
-            ? providedArgs
-            : message.content
-                .trim()
-                .split(/\s+/)
-                .slice(1);
+    let replyOptions;
 
-    /*
-    --------------------------------
-    New Architecture
-    --------------------------------
-    */
+    if (
+        typeof result === "object" &&
+        typeof result.toJSON ===
+            "function" &&
+        result.data
+    )
+    {
+        replyOptions = {
+            embeds: [
+                result
+            ]
+        };
+    }
+    else if (
+        typeof result === "string"
+    )
+    {
+        replyOptions = {
+            content:
+                result
+        };
+    }
+    else
+    {
+        replyOptions =
+            result;
+    }
 
-    if (typeof command.run === "function") {
+    const {
+        afterReply,
+        ...response
+    } = replyOptions;
 
-        const result =
-            await command.run({
+    response.allowedMentions ??= {
+        repliedUser:
+            false
+    };
 
-                guild:
-                    message.guild,
+    const replyMessage =
+        await message.reply(
+            response
+        );
 
-                member:
-                    message.member,
+    if (
+        typeof afterReply ===
+        "function"
+    )
+    {
+        await afterReply(
+            replyMessage
+        );
+    }
 
-                user:
-                    message.author,
+    return replyMessage;
+}
 
-                channel:
-                    message.channel,
-
-                client:
-                    message.client,
-
-                message,
-
-                args
-
-            });
-
-        if (!result)
-            return;
-
-        /*
-        --------------------------------
-        EmbedBuilder
-        --------------------------------
-        */
-
-        if (
-            result &&
-            typeof result === "object" &&
-            Array.isArray(result.data?.fields)
-        ) {
-
-            return message.reply({
-
-                embeds: [result]
-
-            });
-
-        }
-
-        /*
-        --------------------------------
-        String
-        --------------------------------
-        */
-
-        if (typeof result === "string") {
-
-            return message.reply({
-
-                content: result
-
-            });
-
-        }
-
-        /*
-        --------------------------------
-        Reply Object
-        --------------------------------
-        */
-
-        const {
-            afterReply,
-            ...replyOptions
-        } = result;
-
-        const replyMessage =
-            await message.reply(
-                replyOptions
-            );
+module.exports =
+    async function executeCommand(
+        message,
+        command,
+        providedArgs = null
+    )
+    {
+        const args =
+            Array.isArray(providedArgs)
+                ? providedArgs
+                : message.content
+                    .trim()
+                    .split(/\s+/)
+                    .slice(1);
 
         if (
-            typeof afterReply ===
+            typeof command.run ===
             "function"
         )
         {
-            await afterReply(
-                replyMessage
+            const result =
+                await command.run(
+                    createRunContext(
+                        message,
+                        args
+                    )
+                );
+
+            return sendRunResult(
+                message,
+                result
             );
         }
 
-        return replyMessage;
+        if (
+            typeof command.executeMessage ===
+            "function"
+        )
+        {
+            return command.executeMessage(
+                message,
+                args
+            );
+        }
 
-    }
+        if (
+            typeof command.execute ===
+            "function"
+        )
+        {
+            const {
+                blocked,
+                interaction
+            } =
+                await createMessageInteraction(
+                    message,
+                    command,
+                    args
+                );
 
-    /*
-    --------------------------------
-    Legacy
-    --------------------------------
-    */
+            if (blocked)
+                return null;
 
-    if (typeof command.executeMessage === "function") {
+            return command.execute.call(
+                command,
+                interaction
+            );
+        }
 
-        return command.executeMessage(
-            message,
-            args
-        );
+        return message.reply({
+            content:
+                "This command is unavailable.",
+            allowedMentions: {
+                repliedUser:
+                    false
+            }
+        });
+    };
 
-    }
-
-    /*
-    --------------------------------
-    Unsupported
-    --------------------------------
-    */
-
-    return message.reply({
-
-        content:
-            "❌ This command doesn't support prefix commands yet."
-
-    });
-
-};
+module.exports.sendRunResult =
+    sendRunResult;

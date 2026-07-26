@@ -4,7 +4,7 @@
 **Stack:** JavaScript, Node.js, discord.js  
 **Environment:** Android, Acode, Termux  
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
-**Updated:** 2026-07-26
+**Updated:** 2026-07-27
 
 ## Vision
 
@@ -482,34 +482,33 @@ Add:
 
 1. [x] Document current execution flow
 2. [x] Verify and remove duplicate message handling
-3. [~] Inventory every command and dependency — remote audit started; phone-only files still require reconciliation
-4. [~] Define shared action contract — `run(context)` exists for avatar, ping, setprefix, and chat; centralized adapters/defaults are not on GitHub
+3. [x] Inventory every command and dependency — 21 registered commands reviewed: 9 native shared `run(context)` commands and 12 legacy moderation commands
+4. [~] Define shared action contract — shared result sending and a message-to-interaction compatibility layer are locally verified; legacy commands still require native `run(context)` conversion
 5. [ ] Add shared permission and hierarchy validation
 6. [x] Convert `avatar` as the reference action
 7. [x] Preserve slash and prefix behavior for the avatar reference action
 8. [x] Auto-generate help
 9. [x] Add shared embed defaults and migrate existing command embeds
 10. [x] Add paginated Previous/Next navigation to the help overview
-11. [~] Convert every existing command to shared multi-entry action parity — ping, setprefix, and chat are converted on the feature branch
-12. [~] Natural-language routing is structurally available for avatar, ping, setprefix, and chat; full manual parity regression remains
+11. [~] Convert every existing command to shared multi-entry action parity — compatibility routing now covers registered legacy commands locally; 12 moderation commands still need native shared actions
+12. [~] Natural-language routing is structurally available for all 21 registered commands and manually verified for `serverinfo`; command-by-command regression remains
 
-## 2026-07-26 Branch Audit
+## 2026-07-27 Local Parity Foundation Verification
 
-Verified on `feature/existing-command-parity`:
+Verified on the phone but not yet committed or pushed:
 
-- Paginated automatic help, shared embed styling, and the shared member resolver remain present.
-- `ping`, `setprefix`, and `chat` use shared `run(context)` implementations.
-- Protected developer/owner responses mention the configured developer ID and support English, Hindi, Urdu, and Roman Urdu.
-- AI reply cleanup removes only an exact leading `Theaa:` or `Thea:`.
+- Added centralized command metadata defaults for legacy commands.
+- Added a message-to-interaction compatibility adapter for legacy slash implementations.
+- Unified result sending for embeds, strings, reply objects, and `afterReply` callbacks.
+- Preserved slash execution through the same top-level error handler.
+- Improved phrase matching so aliases and triggers return the correct remaining arguments.
+- Confirmed 21 registered commands with no command or alias collisions.
+- Restored the compact `serverinfo` layout inside its shared action instead of depending on a response rewriter.
+- Verified `serverinfo` through slash, prefix, mention, reply, natural language, and detailed help lookup with one response per request.
 
-Not present on the remote branch:
+Custom emojis remain postponed.
 
-- Central slash/message adapter files and command defaults seen as phone-only untracked work.
-- Improved memory isolation and prompt hardening.
-- Invoking-moderator kick hierarchy validation.
-- Custom emoji configuration or assets.
-
-Exact next task: finish the command/dependency inventory, inspect and separate the phone-only changes, then continue converting the remaining existing commands to shared multi-entry parity.
+Exact next task: commit and push this verified foundation, remotely verify the intended files, then add shared permission and hierarchy validation before converting the 12 remaining legacy moderation commands to native shared actions.
 
 # Completion Report
 

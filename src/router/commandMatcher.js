@@ -2,119 +2,91 @@ const {
     getAllCommands
 } = require("./commandRegistry");
 
-function normalize(text) {
-
-    return text
+function normalize(text)
+{
+    return String(text || "")
         .toLowerCase()
         .trim()
         .replace(/[?!.,]/g, "")
         .replace(/\s+/g, " ");
-
 }
 
-function startsWithPhrase(text, phrase) {
-
-    return (
-        text === phrase ||
-        text.startsWith(phrase + " ")
-    );
-
+function getPhrases(command)
+{
+    return [
+        command.name,
+        ...(command.aliases || []),
+        ...(command.triggers || []),
+        ...(command.examples || [])
+    ]
+        .filter(Boolean)
+        .sort(
+            (first, second) =>
+                second.length -
+                first.length
+        );
 }
 
-function matchCommand(message) {
+function matchCommandInput(message)
+{
+    const original =
+        String(message || "")
+            .trim();
 
     const text =
-        normalize(message);
+        normalize(original);
 
-    const commands =
-        getAllCommands();
+    for (const command of getAllCommands())
+    {
+        for (const phrase of getPhrases(command))
+        {
+            const normalizedPhrase =
+                normalize(phrase);
 
-    for (const command of commands) {
-
-        /*
-        ------------------------------
-        Command Name
-        ------------------------------
-        */
-
-        if (
-            startsWithPhrase(
-                text,
-                normalize(command.name)
+            if (
+                text !== normalizedPhrase &&
+                !text.startsWith(
+                    `${normalizedPhrase} `
+                )
             )
-        ) {
-
-            return command;
-
-        }
-
-        /*
-        ------------------------------
-        Aliases
-        ------------------------------
-        */
-
-        for (const alias of (command.aliases || [])) {
-
-            if (
-                startsWithPhrase(
-                    text,
-                    normalize(alias)
-                )
-            ) {
-
-                return command;
-
+            {
+                continue;
             }
 
+            const phraseWordCount =
+                String(phrase)
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .length;
+
+            const args =
+                original
+                    .split(/\s+/)
+                    .slice(
+                        phraseWordCount
+                    );
+
+            return {
+                command,
+                phrase,
+                args
+            };
         }
-
-        /*
-        ------------------------------
-        Triggers
-        ------------------------------
-        */
-
-        for (const trigger of (command.triggers || [])) {
-
-            if (
-                startsWithPhrase(
-                    text,
-                    normalize(trigger)
-                )
-            ) {
-
-                return command;
-
-            }
-
-        }
-
-        /*
-        ------------------------------
-        Legacy Examples
-        ------------------------------
-        */
-
-        for (const example of (command.examples || [])) {
-
-            if (
-                startsWithPhrase(
-                    text,
-                    normalize(example)
-                )
-            ) {
-
-                return command;
-
-            }
-
-        }
-
     }
 
     return null;
-
 }
 
-module.exports = matchCommand;
+function matchCommand(message)
+{
+    return matchCommandInput(
+        message
+    )?.command || null;
+}
+
+module.exports =
+    matchCommand;
+
+module.exports.matchCommandInput =
+    matchCommandInput;

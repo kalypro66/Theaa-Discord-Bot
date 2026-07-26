@@ -3,7 +3,7 @@
 Repository: kalypro66/Theaa-Discord-Bot
 Environment: Android, Acode, Termux
 Stack: JavaScript, Node.js, discord.js
-Updated: 2026-07-26
+Updated: 2026-07-27
 
 ## Read First
 1. DEVELOPMENT_RULES.md
@@ -15,46 +15,68 @@ Updated: 2026-07-26
 ## Current Branch
 feature/existing-command-parity
 
-## Latest Remote Commit
-`f264af8f7e1b5ee44f76e77c352cee7742775e91` — Strip Theaa name prefixes from AI replies
+## Current Remote Branch Tip
+`21017b5f43452643ce16effd9755d9008ed919d9` — Sync parity branch project state
 
-The branch is four commits ahead of `main` and has not been merged.
+The remote branch is five commits ahead of `main` and has not been merged.
+
+Latest remote feature-code commit:
+`f264af8f7e1b5ee44f76e77c352cee7742775e91` — Strip Theaa name prefixes from AI replies
 
 ## Current Feature State
 Existing Command Parity is in progress.
 
 Verified on the GitHub branch:
-- Automatic paginated help remains present from `main`.
-- Shared embed styling remains present from `main`.
-- Shared server-member resolution remains present from `main`.
-- `ping`, `setprefix`, and `chat` expose shared `run(context)` implementations for slash and message routing.
-- Protected developer/owner identity responses are implemented.
-- Developer/owner responses mention the configured developer Discord ID.
-- Protected responses support English, Hindi, Urdu, and Roman Urdu detection.
-- AI replies remove only an exact leading `Theaa:` or `Thea:` prefix before sending.
+- Automatic paginated help, shared embed styling, and shared member resolution remain present.
+- `ping`, `setprefix`, and `chat` expose shared `run(context)` implementations.
+- Protected multilingual developer identity responses mention the configured developer ID.
+- AI replies remove only an exact leading `Theaa:` or `Thea:` prefix.
 
-Not present on the GitHub branch:
-- `src/discord/executeSlashCommand.js`
-- `src/discord/responseNormalizer.js`
+## Locally Verified Pending Commit
+
+The following source changes are present and verified on the phone, but are not yet committed or pushed:
+
+Created:
 - `src/router/commandDefaults.js`
 - `src/router/messageInteractionAdapter.js`
+
+Changed:
+- `index.js`
+- `src/router/commandMatcher.js`
+- `src/router/commandRegistry.js`
+- `src/router/executeCommand.js`
+- `src/router/messageRouter.js`
+- `src/commands/information/serverinfo.js`
+
+Documentation pending in the same commit:
+- `ROADMAP.md`
+- `PROJECT_STATE.md`
+- `CHATGPT_HANDOFF.md`
+
+Verified behavior:
+- 21 commands registered: 9 native shared actions and 12 legacy moderation commands.
+- Metadata defaults, aliases, triggers, categories, permissions, and option schemas passed local verification.
+- Legacy commands have a temporary message-to-interaction compatibility route.
+- Shared result sending handles strings, embeds, reply objects, and `afterReply` callbacks.
+- `serverinfo` uses its own compact shared layout.
+- `serverinfo` passed slash, prefix, mention, reply, natural-language, and detailed-help tests.
+- No duplicate reply was observed.
+- Syntax and `git diff --check` passed.
+
+Still excluded and unverified:
+- `src/discord/responseNormalizer.js`
+- `src/discord/executeSlashCommand.js`
 - `src/discord/validation/`
-- `src/config/emojis.js`
-
-The phone previously showed those paths as untracked local files. Treat them as phone-only and unverified until their contents are inspected and committed.
-
-Also not verified on the GitHub branch:
-- Improved memory isolation; remote memory is still keyed only by guild ID.
-- Prompt hardening; the remote prompt index still contains conflicting exports.
-- Invoking-moderator kick hierarchy validation; remote `kick.js` checks only whether the bot can kick the target.
-
-Custom emojis remain postponed until the emoji files and IDs are supplied.
+- AI memory and prompt changes
+- Kick hierarchy changes
+- Custom emojis, which remain postponed
 
 ## Exact Next Action
-1. Obtain `git status --short` and focused diffs or a backup archive from the phone.
-2. Inventory every existing command and dependency.
-3. Separate the phone-only adapter, validation, memory, prompt, and kick changes into reviewable commits.
-4. Continue converting every existing command to one shared multi-entry action implementation.
+1. Apply the project-state documentation package.
+2. Stage only the eight verified source files and three documentation files.
+3. Commit and push to `feature/existing-command-parity`.
+4. Inspect the remote commit and update this handoff with its actual SHA in a clear follow-up documentation commit.
+5. Add shared permission and hierarchy validation before converting the 12 remaining legacy moderation commands to native shared actions.
 
 Do not begin the dedicated `serverowner` command until Existing Command Parity is complete, verified, documented, pushed, and merged.
 

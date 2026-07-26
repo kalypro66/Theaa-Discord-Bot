@@ -4,7 +4,7 @@
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
 **Environment:** Android, Acode, Termux  
 **Stack:** JavaScript, Node.js, discord.js  
-**Updated:** 2026-07-26
+**Updated:** 2026-07-27
 
 # 1. Mandatory Procedure
 
@@ -138,11 +138,14 @@ This reflects the repository inspected on 2026-07-24. Recheck before editing.
 
 - Loads events from `src/events`
 
-## Routing prototypes
+## Routing and compatibility platform
 
+- `src/router/commandDefaults.js`
 - `src/router/commandRegistry.js`
+- `src/router/commandMatcher.js`
 - `src/router/messageRouter.js`
 - `src/router/executeCommand.js`
+- `src/router/messageInteractionAdapter.js`
 
 ## Message events
 
@@ -205,7 +208,7 @@ Legend:
 - [~] Shared action contract — avatar, banner, and userinfo use shared member resolution
 - [~] Deterministic local natural-language routing
 - [x] Typing indicator for mention, reply, and prefix processing
-- [~] Existing Command Parity — `ping`, `setprefix`, and `chat` use shared `run(context)` implementations on the feature branch; remaining commands and centralized adapters are incomplete
+- [~] Existing Command Parity — 21 commands inventoried; 9 use native shared `run(context)` logic and 12 legacy moderation commands are locally reachable through the verified compatibility adapter pending native conversion and push
 
 ## Utility
 
@@ -283,9 +286,12 @@ Real guild, channel, user, prefix, and moderation data is tracked publicly. Repl
 | `src/handlers/eventHandler.js` | Load events | Feature implementations |
 | `src/events/` | Receive and forward Discord events | Large action logic |
 | `src/automod/processMessage.js` | Check messages before routing and report whether they were blocked | AI and command routing |
-| `src/router/commandRegistry.js` | Discover commands/actions | Discord side effects |
-| `src/router/messageRouter.js` | Route command input | Provider API code |
-| `src/router/executeCommand.js` | Invoke verified interface | Intent guessing |
+| `src/router/commandDefaults.js` | Supply centralized legacy metadata defaults and natural-language phrases | Discord execution |
+| `src/router/commandRegistry.js` | Discover commands/actions, merge metadata, and derive declared permissions | Discord side effects |
+| `src/router/commandMatcher.js` | Match command names, aliases, triggers, and return remaining arguments | Discord mutations |
+| `src/router/messageRouter.js` | Route matched or classified message input | Provider API code |
+| `src/router/executeCommand.js` | Invoke native shared actions or the temporary legacy compatibility path and send normalized results | Intent guessing |
+| `src/router/messageInteractionAdapter.js` | Adapt message context and arguments to the limited interaction interface expected by legacy commands | AI provider calls |
 | `src/help/helpService.js` | Read, group, and search registered command metadata | Discord embed formatting |
 | `src/help/helpFormatter.js` | Build help overview, detail, and error embeds | Command discovery or routing |
 | `src/discord/embeds/embedStyle.js` | Create standard embed colors, Theaa footer context, and timestamps | Command-specific business logic |
@@ -309,7 +315,7 @@ Update this registry whenever responsibilities change.
 
 - [x] Duplicate `messageCreate` handling removed
 - [x] Prefix and AI routing now share one controlled event flow
-- [ ] Commands may mix parsing, validation, execution, and replies
+- [ ] Twelve legacy moderation commands still mix slash parsing, validation, execution, and replies; the compatibility adapter preserves access but is not the final shared-action architecture
 - [ ] Memory resets on restart
 - [ ] Remote memory is scoped only by guild ID and can leak context across channels/users inside one guild
 - [ ] Runtime data is committed
@@ -341,8 +347,8 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 - [x] Document exact message flow
 - [x] Verify and remove duplicate processing
-- [~] Inventory commands and dependencies — remote branch audit updated; phone-only adapter/validation changes still require inspection
-- [~] Define shared action contract — `run(context)` is established for avatar, ping, setprefix, and chat; centralized defaults/adapters are not on GitHub
+- [x] Inventory commands and dependencies — 21 registered commands reviewed; 9 native shared actions and 12 legacy moderation commands identified
+- [~] Define shared action contract — shared result sending and legacy message compatibility are locally verified; native conversion remains
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
 - [x] Convert `avatar` as the reference action
@@ -350,21 +356,86 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [x] Auto-generate help
 - [x] Add shared embed defaults and migrate existing command embeds
 - [x] Add paginated Previous/Next help navigation
-- [~] Existing Command Parity in progress — ping, setprefix, and chat converted; remaining existing commands are pending
+- [~] Existing Command Parity in progress — compatibility foundation and compact `serverinfo` are locally verified but not yet committed or pushed
 
 # 13. Feature History
 
 Add new entries at the top.
 
+## 2026-07-27 — Command parity compatibility foundation and compact server information
+
+**Status:** Locally verified on `feature/existing-command-parity`; not yet committed or pushed.
+
+### Files created locally
+
+- `src/router/commandDefaults.js`
+- `src/router/messageInteractionAdapter.js`
+
+### Files changed locally
+
+- `index.js`
+- `src/router/commandMatcher.js`
+- `src/router/commandRegistry.js`
+- `src/router/executeCommand.js`
+- `src/router/messageRouter.js`
+- `src/commands/information/serverinfo.js`
+- `ROADMAP.md`
+- `PROJECT_STATE.md`
+- `CHATGPT_HANDOFF.md`
+
+### What changed
+
+- Added centralized aliases, triggers, categories, and metadata defaults for legacy registered commands.
+- Added a temporary message-to-interaction adapter so legacy slash implementations remain callable from message routing while native shared actions are developed.
+- Added one result sender for strings, embeds, reply objects, and `afterReply` callbacks.
+- Routed slash commands through the shared top-level execution error handler.
+- Improved command phrase matching and argument extraction.
+- Corrected `serverinfo` to store its compact line-based layout inside `run(context)` instead of relying on the excluded response rewriter.
+
+### Inventory result
+
+- 21 registered commands total.
+- 9 native shared actions: chat, avatar, banner, serverinfo, userinfo, kick, help, ping, and setprefix.
+- 12 legacy moderation commands: addrole, automod, ban, lock, nuke, purge, removerole, setlogs, timeout, unban, unlock, and warn.
+
+### Verification
+
+- Syntax checks passed for all eight affected JavaScript files.
+- Imports and command registration loaded successfully.
+- Registry found all 21 commands.
+- Metadata defaults, categories, aliases, triggers, and declared permission derivation passed.
+- No command or alias collisions were detected.
+- Legacy slash option schemas were parsed by the compatibility adapter.
+- Message response compatibility passed for strings, embeds, reply objects, and callbacks.
+- `git diff --check` passed for the source set.
+- The bot logged in successfully.
+- `serverinfo` passed slash, prefix, mention, reply, natural-language, and detailed-help tests.
+- Each tested route produced one response with no duplicate reply.
+- Compact `serverinfo` lines, shared footer, thumbnail, and timestamp were manually verified.
+
+### Known limitations
+
+- The compatibility adapter is transitional; the 12 legacy moderation commands still need native shared `run(context)` actions.
+- Shared permission and role-hierarchy validation are not implemented yet.
+- Command-by-command runtime regression remains for legacy moderation actions.
+- Gemini's configured model currently returns `404`, while Groq fallback remains functional; provider model maintenance is separate from this feature.
+- Custom emojis remain postponed.
+
+### Next action
+
+- Commit and push only the eight source files and three project-state files listed above.
+- Remotely verify the commit and correct the handoff with the resulting commit SHA.
+- Add shared permission and hierarchy validation before converting the 12 legacy moderation commands.
+
 ## 2026-07-26 — Existing Command Parity branch audit and AI response protections
 
 **Status:** In progress on `feature/existing-command-parity`; pushed but not merged into `main`.
 
-### Latest remote state
+### Latest remote state before the pending local parity commit
 
-- Branch head: `f264af8f7e1b5ee44f76e77c352cee7742775e91`
-- Branch is four commits ahead of `main`.
-- Latest commit removes only an exact leading `Theaa:` or `Thea:` from AI replies.
+- Branch head: `21017b5f43452643ce16effd9755d9008ed919d9` — project-state documentation sync.
+- Branch is five commits ahead of `main`.
+- Latest feature-code commit: `f264af8f7e1b5ee44f76e77c352cee7742775e91` — removes only an exact leading `Theaa:` or `Thea:` from AI replies.
 
 ### Files added on the feature branch
 
