@@ -483,19 +483,19 @@ Add:
 1. [x] Document current execution flow
 2. [x] Verify and remove duplicate message handling
 3. [x] Inventory every command and dependency — 21 registered commands reviewed: 9 native shared `run(context)` commands and 12 legacy moderation commands
-4. [~] Define shared action contract — shared result sending and a message-to-interaction compatibility layer are locally verified; legacy commands still require native `run(context)` conversion
+4. [~] Define shared action contract — shared result sending and the message-to-interaction compatibility layer are pushed and remotely verified; legacy commands still require native `run(context)` conversion
 5. [ ] Add shared permission and hierarchy validation
 6. [x] Convert `avatar` as the reference action
 7. [x] Preserve slash and prefix behavior for the avatar reference action
 8. [x] Auto-generate help
 9. [x] Add shared embed defaults and migrate existing command embeds
 10. [x] Add paginated Previous/Next navigation to the help overview
-11. [~] Convert every existing command to shared multi-entry action parity — compatibility routing now covers registered legacy commands locally; 12 moderation commands still need native shared actions
+11. [~] Convert every existing command to shared multi-entry action parity — compatibility routing now covers registered legacy commands on the feature branch; 12 moderation commands still need native shared actions
 12. [~] Natural-language routing is structurally available for all 21 registered commands and manually verified for `serverinfo`; command-by-command regression remains
 
-## 2026-07-27 Local Parity Foundation Verification
+## 2026-07-27 Remote Parity Foundation Verification
 
-Verified on the phone but not yet committed or pushed:
+Committed and remotely verified on `feature/existing-command-parity` at `5b88d8b8bea6d88b4c85aaced2239929d47b40fe`:
 
 - Added centralized command metadata defaults for legacy commands.
 - Added a message-to-interaction compatibility adapter for legacy slash implementations.
@@ -508,7 +508,7 @@ Verified on the phone but not yet committed or pushed:
 
 Custom emojis remain postponed.
 
-Exact next task: commit and push this verified foundation, remotely verify the intended files, then add shared permission and hierarchy validation before converting the 12 remaining legacy moderation commands to native shared actions.
+Exact next task: add shared permission and hierarchy validation, then convert the 12 remaining legacy moderation commands to native shared actions and run command-by-command parity regression.
 
 # Completion Report
 

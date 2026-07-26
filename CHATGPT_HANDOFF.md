@@ -16,26 +16,26 @@ Updated: 2026-07-27
 feature/existing-command-parity
 
 ## Current Remote Branch Tip
-`21017b5f43452643ce16effd9755d9008ed919d9` — Sync parity branch project state
+`5b88d8b8bea6d88b4c85aaced2239929d47b40fe` — Add command parity compatibility foundation
 
-The remote branch is five commits ahead of `main` and has not been merged.
-
-Latest remote feature-code commit:
-`f264af8f7e1b5ee44f76e77c352cee7742775e91` — Strip Theaa name prefixes from AI replies
+The remote branch is six commits ahead of `main` and has not been merged.
 
 ## Current Feature State
 Existing Command Parity is in progress.
 
-Verified on the GitHub branch:
+Pushed and remotely verified on the GitHub branch:
 - Automatic paginated help, shared embed styling, and shared member resolution remain present.
 - `ping`, `setprefix`, and `chat` expose shared `run(context)` implementations.
 - Protected multilingual developer identity responses mention the configured developer ID.
 - AI replies remove only an exact leading `Theaa:` or `Thea:` prefix.
+- Central command metadata defaults are present for legacy commands.
+- The temporary message-to-interaction compatibility adapter is present.
+- Shared message result sending handles strings, embeds, reply objects, and `afterReply` callbacks.
+- The registry loads 21 commands: 9 native shared actions and 12 legacy moderation commands.
+- Compact `serverinfo` formatting lives inside its shared `run(context)` action.
+- `serverinfo` passed slash, prefix, mention, reply, natural-language, and detailed-help tests with one response per request.
 
-## Locally Verified Pending Commit
-
-The following source changes are present and verified on the phone, but are not yet committed or pushed:
-
+## Commit Contents
 Created:
 - `src/router/commandDefaults.js`
 - `src/router/messageInteractionAdapter.js`
@@ -47,23 +47,14 @@ Changed:
 - `src/router/executeCommand.js`
 - `src/router/messageRouter.js`
 - `src/commands/information/serverinfo.js`
-
-Documentation pending in the same commit:
 - `ROADMAP.md`
 - `PROJECT_STATE.md`
 - `CHATGPT_HANDOFF.md`
 
-Verified behavior:
-- 21 commands registered: 9 native shared actions and 12 legacy moderation commands.
-- Metadata defaults, aliases, triggers, categories, permissions, and option schemas passed local verification.
-- Legacy commands have a temporary message-to-interaction compatibility route.
-- Shared result sending handles strings, embeds, reply objects, and `afterReply` callbacks.
-- `serverinfo` uses its own compact shared layout.
-- `serverinfo` passed slash, prefix, mention, reply, natural-language, and detailed-help tests.
-- No duplicate reply was observed.
-- Syntax and `git diff --check` passed.
+## Phone-Only Work
+The phone still contains many modified and untracked source files outside the verified commit. Treat them as unfinished and unpushed until separately inspected.
 
-Still excluded and unverified:
+Still excluded from the remote parity foundation:
 - `src/discord/responseNormalizer.js`
 - `src/discord/executeSlashCommand.js`
 - `src/discord/validation/`
@@ -71,12 +62,14 @@ Still excluded and unverified:
 - Kick hierarchy changes
 - Custom emojis, which remain postponed
 
+Do not run destructive Git cleanup commands or stage all files while this work exists.
+
 ## Exact Next Action
-1. Apply the project-state documentation package.
-2. Stage only the eight verified source files and three documentation files.
-3. Commit and push to `feature/existing-command-parity`.
-4. Inspect the remote commit and update this handoff with its actual SHA in a clear follow-up documentation commit.
-5. Add shared permission and hierarchy validation before converting the 12 remaining legacy moderation commands to native shared actions.
+1. Add shared permission and role-hierarchy validation as a separate verified feature.
+2. Inspect the phone-only validation and kick changes only as reference; do not commit them blindly.
+3. Convert the 12 legacy moderation commands to native shared `run(context)` actions after the validators are stable.
+4. Run command-by-command slash, prefix, mention, reply, natural-language, and help regression.
+5. Update project records, push, remotely verify, and merge only when the Existing Command Parity milestone is complete.
 
 Do not begin the dedicated `serverowner` command until Existing Command Parity is complete, verified, documented, pushed, and merged.
 

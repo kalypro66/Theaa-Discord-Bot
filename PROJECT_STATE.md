@@ -208,7 +208,7 @@ Legend:
 - [~] Shared action contract — avatar, banner, and userinfo use shared member resolution
 - [~] Deterministic local natural-language routing
 - [x] Typing indicator for mention, reply, and prefix processing
-- [~] Existing Command Parity — 21 commands inventoried; 9 use native shared `run(context)` logic and 12 legacy moderation commands are locally reachable through the verified compatibility adapter pending native conversion and push
+- [~] Existing Command Parity — 21 commands inventoried; 9 use native shared `run(context)` logic and 12 legacy moderation commands are reachable through the pushed and remotely verified compatibility adapter pending native conversion
 
 ## Utility
 
@@ -348,7 +348,7 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [x] Document exact message flow
 - [x] Verify and remove duplicate processing
 - [x] Inventory commands and dependencies — 21 registered commands reviewed; 9 native shared actions and 12 legacy moderation commands identified
-- [~] Define shared action contract — shared result sending and legacy message compatibility are locally verified; native conversion remains
+- [~] Define shared action contract — shared result sending and legacy message compatibility are pushed and remotely verified; native conversion remains
 - [ ] Add shared permission checks
 - [ ] Add shared hierarchy checks
 - [x] Convert `avatar` as the reference action
@@ -356,7 +356,7 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [x] Auto-generate help
 - [x] Add shared embed defaults and migrate existing command embeds
 - [x] Add paginated Previous/Next help navigation
-- [~] Existing Command Parity in progress — compatibility foundation and compact `serverinfo` are locally verified but not yet committed or pushed
+- [~] Existing Command Parity in progress — compatibility foundation and compact `serverinfo` are pushed and remotely verified; native legacy-command conversion remains
 
 # 13. Feature History
 
@@ -364,14 +364,14 @@ Add new entries at the top.
 
 ## 2026-07-27 — Command parity compatibility foundation and compact server information
 
-**Status:** Locally verified on `feature/existing-command-parity`; not yet committed or pushed.
+**Status:** Pushed and remotely verified on `feature/existing-command-parity` at `5b88d8b8bea6d88b4c85aaced2239929d47b40fe`; not merged into `main`.
 
-### Files created locally
+### Files created
 
 - `src/router/commandDefaults.js`
 - `src/router/messageInteractionAdapter.js`
 
-### Files changed locally
+### Files changed
 
 - `index.js`
 - `src/router/commandMatcher.js`
@@ -421,17 +421,23 @@ Add new entries at the top.
 - Gemini's configured model currently returns `404`, while Groq fallback remains functional; provider model maintenance is separate from this feature.
 - Custom emojis remain postponed.
 
+### Commit and remote state
+
+- Commit: `5b88d8b8bea6d88b4c85aaced2239929d47b40fe` — Add command parity compatibility foundation.
+- Remote branch: `feature/existing-command-parity`.
+- Remote verification confirmed the intended eight source files and three project-state files.
+- Merge into `main`: pending.
+
 ### Next action
 
-- Commit and push only the eight source files and three project-state files listed above.
-- Remotely verify the commit and correct the handoff with the resulting commit SHA.
-- Add shared permission and hierarchy validation before converting the 12 legacy moderation commands.
+- Add shared permission and role-hierarchy validation before converting the 12 legacy moderation commands.
+- Run command-by-command multi-entry regression after each native conversion.
 
 ## 2026-07-26 — Existing Command Parity branch audit and AI response protections
 
 **Status:** In progress on `feature/existing-command-parity`; pushed but not merged into `main`.
 
-### Latest remote state before the pending local parity commit
+### Remote state before the parity foundation commit
 
 - Branch head: `21017b5f43452643ce16effd9755d9008ed919d9` — project-state documentation sync.
 - Branch is five commits ahead of `main`.
