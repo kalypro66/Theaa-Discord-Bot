@@ -1,43 +1,43 @@
-const { GoogleGenAI } =
-    require("@google/genai");
-
 const {
     getCommandMetadata
-} = require("../router/commandRegistry");
+} = require(
+    "../router/commandRegistry"
+);
 
-const ai =
-    new GoogleGenAI({
+const {
+    classifyWithProviders
+} = require(
+    "./intentProvider"
+);
 
-        apiKey:
-            process.env.GEMINI_API_KEY
+function conversationIntent()
+{
+    return {
+        type:
+            "conversation"
+    };
+}
 
-    });
+function buildCommandList()
+{
+    return getCommandMetadata()
+        .map(command =>
+        {
+            const aliases =
+                command.aliases.length
+                    ? command.aliases.join(
+                        ", "
+                    )
+                    : "None";
 
-module.exports = async function classifyIntent(
-    context
-) {
+            const triggers =
+                command.triggers.length
+                    ? command.triggers.join(
+                        ", "
+                    )
+                    : "None";
 
-    /*
-    --------------------------------
-    Build Dynamic Command List
-    --------------------------------
-    */
-
-    const commandList =
-        getCommandMetadata()
-            .map(command => {
-
-                const aliases =
-                    command.aliases.length
-                        ? command.aliases.join(", ")
-                        : "None";
-
-                const triggers =
-                    command.triggers.length
-                        ? command.triggers.join(", ")
-                        : "None";
-
-                return `Command:
+            return `Command:
 ${command.name}
 
 Description:
@@ -48,18 +48,18 @@ ${aliases}
 
 Triggers:
 ${triggers}`;
+        })
+        .join(
+            "\n\n------------------------------\n\n"
+        );
+}
 
-            })
-            .join("\n\n------------------------------\n\n");
-
-    /*
-    --------------------------------
-    Prompt
-    --------------------------------
-    */
-
-    const prompt =
-`You are an intent classifier for a Discord bot.
+function buildPrompt(
+    context,
+    commandList
+)
+{
+    return `You are an intent classifier for a Discord bot.
 
 Your ONLY job is deciding whether the user wants to execute a command.
 
@@ -81,171 +81,192 @@ Command:
 
 Rules:
 
-- args must always exist.
-- args is an array.
+- args must always exist for a command.
+- args must be an array.
 - If no arguments exist, return [].
 - If the user mentions a person, put the person's name in args.
 - If the user gives extra information, include it in args.
 - Never invent arguments.
-- If the user is just chatting, always return {"type":"conversation"}.
+- Never invent a command name.
+- If the user is just chatting, return {"type":"conversation"}.
 
 Available Commands
 
 ${commandList}
 
-Examples
-
-User:
-server info
-
-Output:
-{
-  "type":"command",
-  "command":"serverinfo",
-  "args":[]
-}
-
-User:
-who owns this server
-
-Output:
-{
-  "type":"command",
-  "command":"serverinfo",
-  "args":[]
-}
-
-User:
-show Prince avatar
-
-Output:
-{
-  "type":"command",
-  "command":"avatar",
-  "args":["Prince"]
-}
-
-User:
-show Alice banner
-
-Output:
-{
-  "type":"command",
-  "command":"banner",
-  "args":["Alice"]
-}
-
-User:
-ping
-
-Output:
-{
-  "type":"command",
-  "command":"ping",
-  "args":[]
-}
-
-User:
-hello
-
-Output:
-{
-  "type":"conversation"
-}
-
 User:
 
 ${context.message}`;
+}
 
-    try {
-
-        const response =
-            await ai.models.generateContent({
-
-                model:
-                    "gemini-2.5-flash",
-
-                contents: [
-
-                    {
-
-                        role: "user",
-
-                        parts: [
-
-                            {
-
-                                text: prompt
-
-                            }
-
-                        ]
-
-                    }
-
-                ]
-
-            });
-
-        const text =
-            response.text?.trim();
-
-        console.log(
-            "\n========== RAW INTENT RESPONSE =========="
-        );
-        console.log(text);
-        console.log(
-            "=========================================\n"
-        );
-
-        if (!text) {
-
-            return {
-
-                type:
-                    "conversation"
-
-            };
-
-        }
-
-        const result =
-            JSON.parse(text);
-
-        if (
-            result.type === "command" &&
-            !Array.isArray(result.args)
-        ) {
-
-            result.args = [];
-
-        }
-
-        console.log(
-            "[Intent]",
-            JSON.stringify(
-                result,
-                null,
-                2
+function extractJson(
+    text
+)
+{
+    const cleaned =
+        String(text || "")
+            .trim()
+            .replace(
+                /^```(?:json)?\s*/i,
+                ""
             )
+            .replace(
+                /\s*```$/,
+                ""
+            )
+            .trim();
+
+    const firstBrace =
+        cleaned.indexOf(
+            "{"
         );
 
-        return result;
-
-    } catch (err) {
-
-        console.error(
-            "[Intent Classifier]",
-            err
+    const lastBrace =
+        cleaned.lastIndexOf(
+            "}"
         );
 
-        return {
-
-            type:
-                "conversation"
-
-        };
-
+    if (
+        firstBrace === -1 ||
+        lastBrace < firstBrace
+    )
+    {
+        return null;
     }
 
-};
+    return cleaned.slice(
+        firstBrace,
+        lastBrace + 1
+    );
+}
+
+function normalizeIntent(
+    rawIntent,
+    commandNames
+)
+{
+    if (
+        !rawIntent ||
+        typeof rawIntent !==
+            "object"
+    )
+    {
+        return conversationIntent();
+    }
+
+    if (
+        rawIntent.type !==
+            "command"
+    )
+    {
+        return conversationIntent();
+    }
+
+    const commandName =
+        String(
+            rawIntent.command ||
+            ""
+        )
+            .trim()
+            .toLowerCase();
+
+    if (
+        !commandNames.has(
+            commandName
+        )
+    )
+    {
+        return conversationIntent();
+    }
+
+    return {
+        type:
+            "command",
+
+        command:
+            commandName,
+
+        args:
+            Array.isArray(
+                rawIntent.args
+            )
+                ? rawIntent.args
+                    .map(value =>
+                        String(value)
+                    )
+                    .filter(Boolean)
+                : []
+    };
+}
+
+module.exports =
+    async function classifyIntent(
+        context
+    )
+    {
+        const commandMetadata =
+            getCommandMetadata();
+
+        const commandNames =
+            new Set(
+                commandMetadata.map(
+                    command =>
+                        command.name
+                )
+            );
+
+        const prompt =
+            buildPrompt(
+                context,
+                buildCommandList()
+            );
+
+        const response =
+            await classifyWithProviders(
+                prompt
+            );
+
+        if (!response.success)
+        {
+            return conversationIntent();
+        }
+
+        try
+        {
+            const jsonText =
+                extractJson(
+                    response.text
+                );
+
+            if (!jsonText)
+            {
+                return conversationIntent();
+            }
+
+            const result =
+                normalizeIntent(
+                    JSON.parse(
+                        jsonText
+                    ),
+                    commandNames
+                );
+
+            console.log(
+                "[Intent]",
+                JSON.stringify(
+                    result
+                )
+            );
+
+            return result;
+        }
+        catch (error)
+        {
+            console.error(
+                "[Intent] Invalid classifier response.",
+                error
+            );
+
+            return conversationIntent();
+        }
+    };

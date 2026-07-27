@@ -1,5 +1,8 @@
-const { buildMessages } = require("./context");
-const { addMessage } = require("./memory");
+const {
+    buildMessages
+} = require(
+    "./context"
+);
 
 const MODELS = [
     "deepseek/deepseek-chat-v3-0324:free",
@@ -7,33 +10,48 @@ const MODELS = [
     "google/gemma-3-27b-it:free"
 ];
 
-async function askOpenRouter(context) {
+async function askOpenRouter(
+    context
+)
+{
+    const messages =
+        buildMessages(
+            context
+        );
 
-    const messages = buildMessages(context);
+    for (const model of MODELS)
+    {
+        try
+        {
+            const response =
+                await fetch(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    {
+                        method:
+                            "POST",
 
-    for (const model of MODELS) {
+                        headers: {
+                            Authorization:
+                                `Bearer ${process.env.OPENROUTER_API_KEY}`,
 
-        try {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-            const response = await fetch(
-                "https://openrouter.ai/api/v1/chat/completions",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model,
-                        messages,
-                        temperature: 0.8
-                    })
-                }
-            );
+                        body:
+                            JSON.stringify({
+                                model,
+                                messages,
+                                temperature:
+                                    0.8
+                            })
+                    }
+                );
 
-            if (!response.ok) {
-
-                const error = await response.json();
+            if (!response.ok)
+            {
+                const error =
+                    await response.json();
 
                 console.log(
                     `[OpenRouter] ${model} failed`,
@@ -41,51 +59,48 @@ async function askOpenRouter(context) {
                 );
 
                 continue;
-
             }
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             const reply =
-                data.choices?.[0]?.message?.content ||
-                "I don't know what to say 😭";
-
-            addMessage(
-                context.guildId,
-                context.username,
-                context.message
-            );
-
-            addMessage(
-                context.guildId,
-                context.botName || "Thea",
-                reply
-            );
+                data.choices?.[0]
+                    ?.message?.content ||
+                "I don't know what to say.";
 
             return {
-                success: true,
-                provider: "openrouter",
+                success:
+                    true,
+
+                provider:
+                    "openrouter",
+
                 model,
+
                 reply
             };
-
-        } catch (err) {
-
+        }
+        catch (error)
+        {
             console.log(
                 `[OpenRouter] ${model} crashed`,
-                err
+                error
             );
-
         }
-
     }
 
     return {
-        success: false,
-        provider: "openrouter",
-        status: 500
-    };
+        success:
+            false,
 
+        provider:
+            "openrouter",
+
+        status:
+            500
+    };
 }
 
-module.exports = askOpenRouter;
+module.exports =
+    askOpenRouter;

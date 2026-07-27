@@ -7,10 +7,23 @@ const {
     "./protectedResponses"
 );
 
-function normalizeReply(reply)
+const {
+    addExchange
+} = require(
+    "./memory"
+);
+
+function normalizeReply(
+    reply
+)
 {
-    if (typeof reply !== "string")
+    if (
+        typeof reply !==
+            "string"
+    )
+    {
         return reply;
+    }
 
     return reply.replace(
         /^(?:Theaa|Thea):\s*/,
@@ -18,7 +31,34 @@ function normalizeReply(reply)
     );
 }
 
-async function askAI(context)
+function finishReply(
+    context,
+    reply
+)
+{
+    const normalized =
+        normalizeReply(
+            reply
+        );
+
+    if (
+        typeof normalized ===
+            "string" &&
+        normalized.trim()
+    )
+    {
+        addExchange(
+            context,
+            normalized
+        );
+    }
+
+    return normalized;
+}
+
+async function askAI(
+    context
+)
 {
     const protectedReply =
         getProtectedResponse(
@@ -26,9 +66,12 @@ async function askAI(context)
         );
 
     if (protectedReply)
-        return normalizeReply(
+    {
+        return finishReply(
+            context,
             protectedReply
         );
+    }
 
     try
     {
@@ -38,9 +81,12 @@ async function askAI(context)
             );
 
         if (result.success)
-            return normalizeReply(
+        {
+            return finishReply(
+                context,
                 result.reply
             );
+        }
 
         return normalizeReply(
             result.reply ||
@@ -49,7 +95,9 @@ async function askAI(context)
     }
     catch (error)
     {
-        console.error(error);
+        console.error(
+            error
+        );
 
         return (
             "Something went wrong while thinking."

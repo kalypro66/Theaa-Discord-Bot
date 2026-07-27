@@ -1,9 +1,19 @@
-const prompt = require("./prompt");
-const { getHistory } = require("./memory");
+const prompt =
+    require("./prompt");
 
-function formatMember(title, member) {
+const {
+    getHistory
+} = require(
+    "./memory"
+);
 
-    if (!member) return "";
+function formatMember(
+    title,
+    member
+)
+{
+    if (!member)
+        return "";
 
     return `${title}
 
@@ -16,7 +26,11 @@ ${member.highestRole.name}
 
 Roles:
 ${member.roles.length
-    ? member.roles.map(r => r.name).join(", ")
+    ? member.roles
+        .map(role =>
+            role.name
+        )
+        .join(", ")
     : "None"}
 
 Permissions:
@@ -24,23 +38,61 @@ ${member.permissions.length
     ? member.permissions.join(", ")
     : "None"}
 `;
-
 }
 
-function buildMessages(context) {
+function formatHistoryEntry(
+    entry
+)
+{
+    if (
+        entry.role ===
+            "assistant"
+    )
+    {
+        return {
+            role:
+                "assistant",
 
+            content:
+                entry.text
+        };
+    }
+
+    const speaker =
+        entry.speaker ||
+        "User";
+
+    return {
+        role:
+            "user",
+
+        content:
+            `${speaker}: ${entry.text}`
+    };
+}
+
+function buildMessages(
+    context
+)
+{
     const history =
-        getHistory(context.guildId);
+        getHistory(
+            context
+        );
 
     const messages = [];
 
     messages.push({
-        role: "system",
-        content: prompt
+        role:
+            "system",
+
+        content:
+            context.systemPrompt ||
+            prompt
     });
 
-    if (context.discordContext) {
-
+    if (context.discordContext)
+    {
         const {
             server,
             members,
@@ -48,7 +100,9 @@ function buildMessages(context) {
         } = context.discordContext;
 
         messages.push({
-            role: "system",
+            role:
+                "system",
+
             content:
 `LIVE DISCORD CONTEXT
 
@@ -67,9 +121,15 @@ Mentionable: ${role.mentionable}
 Hoisted: ${role.hoisted}`
 ).join("\n\n")}
 
-${formatMember("BOT (YOU)", members.bot)}
+${formatMember(
+    "BOT (YOU)",
+    members.bot
+)}
 
-${formatMember("MESSAGE AUTHOR", members.author)}
+${formatMember(
+    "MESSAGE AUTHOR",
+    members.author
+)}
 
 ${members.target
     ? formatMember(
@@ -92,34 +152,31 @@ If the answer exists in this context,
 use it instead of guessing.
 `
         });
-
     }
 
-    for (const msg of history) {
-
-        messages.push({
-            role: "user",
-            content:
-`${msg.speaker}: ${msg.text}`
-        });
-
+    for (const entry of history)
+    {
+        messages.push(
+            formatHistoryEntry(
+                entry
+            )
+        );
     }
 
     messages.push({
-
-        role: "user",
+        role:
+            "user",
 
         content:
 `${context.username}:
 
 ${context.message}`
-
     });
 
     return messages;
-
 }
 
 module.exports = {
-    buildMessages
+    buildMessages,
+    formatHistoryEntry
 };

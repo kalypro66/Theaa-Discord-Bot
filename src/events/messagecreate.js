@@ -11,6 +11,14 @@ const {
     getPrefix
 } = require("../discord/prefixManager");
 
+const {
+    startTyping
+} = require("../utils/typingIndicator");
+
+const {
+    handleOwnerDm
+} = require("./ownerDm");
+
 async function isReplyToBot(
     message,
     botId
@@ -45,41 +53,6 @@ async function isReplyToBot(
     }
 }
 
-function startTyping(channel)
-{
-    let active =
-        true;
-
-    const sendTyping = () =>
-    {
-        if (!active)
-            return;
-
-        channel.sendTyping()
-            .catch(() => {});
-    };
-
-    sendTyping();
-
-    const interval =
-        setInterval(
-            sendTyping,
-            8000
-        );
-
-    interval.unref?.();
-
-    return () =>
-    {
-        active =
-            false;
-
-        clearInterval(
-            interval
-        );
-    };
-}
-
 module.exports = {
     name:
         "messageCreate",
@@ -90,7 +63,13 @@ module.exports = {
             return;
 
         if (!message.guild)
+        {
+            await handleOwnerDm(
+                message
+            );
+
             return;
+        }
 
         /*
         --------------------------------
@@ -211,6 +190,9 @@ module.exports = {
             const context = {
                 guildId:
                     message.guild.id,
+
+                memoryKey:
+                    `guild:${message.guild.id}:channel:${message.channel.id}:user:${message.author.id}`,
 
                 userId:
                     message.author.id,
