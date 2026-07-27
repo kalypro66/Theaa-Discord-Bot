@@ -117,7 +117,7 @@ Existing:
 - [x] Kick
 - [x] Timeout
 - [x] Warn
-- [x] Purge
+- [x] Purge — supports 1–500 recent messages in Discord-safe batches
 - [x] Lock
 - [x] Unlock
 - [x] Nuke
@@ -304,7 +304,7 @@ Add:
 - [x] Mention and reply detection
 - [ ] Configured AI channels
 - [ ] Disabled channels
-- [ ] Safe DM behavior
+- [x] Owner-only safe DM behavior; unauthorized DMs are silently ignored
 - [ ] Structured message context
 - [ ] Guild and user rate limits
 
@@ -360,19 +360,19 @@ Later:
 
 Existing:
 
-- [x] Gemini
-- [x] Groq
-- [x] OpenRouter
+- [x] Groq primary provider
+- [x] OpenRouter fallback provider
+- [x] Gemini removed from active reply and intent-classification paths
 - [x] Provider manager prototype
-- [~] Basic AI chat
-- [~] In-memory history
+- [~] Basic AI chat, including isolated owner-only DMs
+- [~] Role-aware short-term in-memory history; persistence remains
 
 Add:
 
 - [ ] Provider health, timeout, retry, fallback, rate-limit, token, and cost tracking
 - [ ] Configurable model priority
 - [~] Typing indicator added; streaming remains
-- [ ] Stable personality
+- [~] Mature server personality and isolated owner-DM persona added; broader regression remains
 - [ ] Server, user, channel, and reply context
 - [ ] Know when not to answer
 - [ ] Prompt-injection resistance
@@ -526,3 +526,26 @@ Commit:
 PROJECT_STATE.md update:
 Next recommended feature:
 ```
+
+# Feature Record — Owner-only DMs and Conversation Improvements
+
+**Date:** 2026-07-27
+**Code commit:** `2b2ff3cdbefa6d01db845104435d41662d9619f9`
+**Branch:** `feature/owner-only-dms`
+
+Completed in this feature branch:
+
+- Owner-only direct-message conversations; all other users are silently ignored in DMs.
+- A private girlfriend-style owner persona isolated from server behavior.
+- Mature, friendly server conversation style with context-dependent emoji usage.
+- Groq primary and OpenRouter fallback for replies and AI intent classification.
+- Gemini SDK, provider, classifier dependency, and local API-key requirement removed.
+- Role-aware short-term memory isolated by DM owner or server channel-and-user.
+- Purge expanded to 500 recent messages using sequential Discord-safe batches.
+- Slash purge uses an ephemeral interaction response; message routes send a fresh result after the invoking message may be deleted.
+
+Known limitations:
+
+- Conversation memory is process-local and clears whenever the bot restarts.
+- Purge cannot bulk-delete messages older than Discord's fourteen-day limit.
+- The feature branch must be merged back into `feature/existing-command-parity` before parity work resumes.

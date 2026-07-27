@@ -13,12 +13,15 @@ Updated: 2026-07-27
 5. Inspect the actual related source files from the latest branch
 
 ## Current Branch
-feature/existing-command-parity
+feature/owner-only-dms
 
-## Current Remote Branch Tip
-`5b88d8b8bea6d88b4c85aaced2239929d47b40fe` — Add command parity compatibility foundation
+## Current Feature Code Commit
+`2b2ff3cdbefa6d01db845104435d41662d9619f9` — Add owner-only DMs and improve AI conversations
 
-The remote branch is six commits ahead of `main` and has not been merged.
+## Feature Base
+`f55faa4c535db95d21a34024dc1d1a3ee2d60250` — Record parity foundation remote verification
+
+This feature branch must be pushed and then merged into `feature/existing-command-parity`, not directly into `main`.
 
 ## Current Feature State
 Existing Command Parity is in progress.
@@ -58,20 +61,20 @@ Still excluded from the remote parity foundation:
 - `src/discord/responseNormalizer.js`
 - `src/discord/executeSlashCommand.js`
 - `src/discord/validation/`
-- AI memory and prompt changes
 - Kick hierarchy changes
 - Custom emojis, which remain postponed
 
 Do not run destructive Git cleanup commands or stage all files while this work exists.
 
 ## Exact Next Action
-1. Add shared permission and role-hierarchy validation as a separate verified feature.
-2. Inspect the phone-only validation and kick changes only as reference; do not commit them blindly.
-3. Convert the 12 legacy moderation commands to native shared `run(context)` actions after the validators are stable.
-4. Run command-by-command slash, prefix, mention, reply, natural-language, and help regression.
-5. Update project records, push, remotely verify, and merge only when the Existing Command Parity milestone is complete.
+1. Commit this documentation record after code commit `2b2ff3cdbefa6d01db845104435d41662d9619f9`.
+2. Push `feature/owner-only-dms` and remotely verify both commits and their exact file sets.
+3. Merge `feature/owner-only-dms` into `feature/existing-command-parity`; do not merge directly into `main`.
+4. Resume shared permission and hierarchy validation from the protected stash without restoring unrelated phone work.
+5. Redesign the kick result embed using the compact serverinfo-style layout.
+6. Convert the remaining legacy moderation commands to native shared `run(context)` actions after validators are stable.
 
-Do not begin the dedicated `serverowner` command until Existing Command Parity is complete, verified, documented, pushed, and merged.
+Do not drop or clear any stash. Do not begin the dedicated `serverowner` command until Existing Command Parity is complete, verified, documented, pushed, and merged.
 
 ## Required Entry Methods
 Every existing and future command must support:
@@ -113,3 +116,32 @@ GitHub is the permanent source of truth. Phone-only files must be clearly labele
 
 ## Important
 Do not call a feature complete until syntax, imports, registration, applicable entry methods, Discord behavior, documentation, commit, push, remote verification, and merge requirements have passed.
+
+## Owner-only DM and Conversation Feature
+
+Code commit: `2b2ff3cdbefa6d01db845104435d41662d9619f9`
+
+Included:
+
+- Developer-only DM gate with silent rejection for all other accounts.
+- Isolated owner girlfriend persona.
+- Mature server persona with context-dependent emoji use.
+- Groq primary and OpenRouter fallback for replies and classification.
+- Gemini module and dependency removal.
+- Role-aware short-term memory isolated per DM owner or server channel-and-user.
+- Purge range increased to 500 using batches of at most 100.
+- Safe purge response handling after the invoking message is deleted.
+
+Manual behavior reported as passing:
+
+- Owner DM replies.
+- Outsider DM silence.
+- Server persona isolation.
+- Short follow-up memory.
+- Purge above 100 messages.
+
+Protected stashes still expected:
+
+- `Working shared validators and kick embed pending 2026-07-27`
+- `Phone work before shared validators 2026-07-27`
+- `Local work before Theaa prefix fix`

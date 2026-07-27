@@ -119,7 +119,7 @@ This reflects the repository inspected on 2026-07-24. Recheck before editing.
 
 - Creates the Discord client
 - Loads environment variables
-- Enables Guilds, GuildMessages, and MessageContent intents
+- Enables Guilds, GuildMessages, MessageContent, and DirectMessages intents with Channel partials
 - Loads command and event handlers
 - Executes slash commands
 - Logs in with `TOKEN`
@@ -157,7 +157,7 @@ Current controlled flow:
 ```text
 Discord message
       ↓
-Ignore bots and DMs
+Ignore bots; route DMs through the owner-only gate
       ↓
 Detect prefix, bot mention, or reply
       ↓
@@ -176,7 +176,6 @@ Known:
 
 - `discord.js`
 - `dotenv`
-- `@google/genai`
 
 Before adding a package:
 
@@ -1141,3 +1140,70 @@ Commit:
 Project-state sections updated:
 Next recommended feature:
 ```
+
+# 7. Owner-only DMs and Conversation Improvements
+
+**Date:** 2026-07-27
+**Branch:** `feature/owner-only-dms`
+**Code commit:** `2b2ff3cdbefa6d01db845104435d41662d9619f9`
+
+## User-visible behavior
+
+- Theaa responds to direct messages only when the author ID matches the configured developer ID.
+- Unauthorized DMs receive no typing indicator and no response.
+- Owner DMs use a private affectionate girlfriend-style persona.
+- Server messages retain a separate mature and friendly personality.
+- Server replies default to no emoji and use one only when context makes it useful.
+- Theaa uses recent conversation context for short follow-ups and avoids repeatedly interviewing users about the server.
+- Purge accepts values from 1 through 500.
+
+## Technical implementation
+
+- `index.js` enables `DirectMessages` and the `Channel` partial.
+- `src/events/messagecreate.js` routes DMs before guild-only processing and gives server conversations a channel-and-user memory key.
+- `src/events/ownerDm.js` enforces the developer-only DM gate and builds an isolated DM context.
+- `src/utils/typingIndicator.js` provides reusable typing lifecycle handling.
+- `src/ai/prompt/ownerDm.js` adds the owner-only relationship persona without changing server prompts.
+- `src/ai/memory.js` stores role-aware user and assistant history with 120-message and 30,000-character limits.
+- `src/ai/context.js` sends remembered entries to providers using their correct chat roles.
+- `src/ai/manager.js` records one completed exchange centrally so provider fallbacks do not duplicate memory.
+- `src/ai/groq.js` and `src/ai/openrouter.js` provide replies without writing memory themselves.
+- `src/ai/intentProvider.js` provides Groq-first and OpenRouter-second intent classification.
+- `src/ai/classifyIntent.js` validates classifier JSON and only accepts registered command names.
+- `src/ai/providerManager.js` uses Groq then OpenRouter and has no Gemini path.
+- `src/ai/gemini.js` and the `@google/genai` dependency were removed.
+- `src/commands/moderation/purge.js` paginates and deletes recent messages in batches no larger than 100.
+
+## Memory and isolation
+
+- Owner DM key: `dm:<developer-user-id>`.
+- Server key: `guild:<guild-id>:channel:<channel-id>:user:<author-id>`.
+- Server users do not inherit another user's private conversation history.
+- Memory is in-process only and is intentionally cleared by a bot restart.
+
+## Purge safety
+
+- Maximum request: 500 messages.
+- Maximum Discord batch: 100 messages.
+- Messages at or beyond fourteen days old are skipped and stop backward pagination.
+- Slash responses are ephemeral so they cannot be removed by the purge.
+- Prefix, mention, reply, and natural-language responses are sent as fresh channel messages.
+- Existing `ManageMessages` permission requirements remain.
+
+## Verification reported
+
+- Owner DM conversation passed.
+- Unauthorized-account DM silence passed.
+- Server personality isolation passed.
+- Groq reply and Groq intent-classification paths passed without Gemini requests.
+- Short follow-up memory passed.
+- Purge above 100 messages passed after the deleted-message response fix.
+- Syntax checks and `git diff --check` passed.
+- The three existing safety stashes remained present.
+
+## Known limitations
+
+- Memory is not persisted to disk or a database.
+- Provider availability still depends on external API limits.
+- Purge cannot bulk-delete Discord messages older than fourteen days.
+- Shared permission and hierarchy validation remains parked in a protected stash and is not part of this branch.
