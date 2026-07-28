@@ -4,7 +4,7 @@
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
 **Environment:** Android, Acode, Termux  
 **Stack:** JavaScript, Node.js, discord.js  
-**Updated:** 2026-07-27
+**Updated:** 2026-07-29
 
 # 1. Mandatory Procedure
 
@@ -245,9 +245,9 @@ Legend:
 - [x] OpenRouter adapter
 - [x] Provider manager prototype
 - [x] AI manager prototype
-- [~] Chat slash command
-- [~] Message AI conversation
-- [~] In-memory history
+- [x] Server `/chat` command removed; AI commands are owner-DM-only
+- [x] Server AI message conversation removed; owner-only DM conversation retained
+- [~] Owner-DM in-memory history retained; persistence remains
 - [~] Protected developer identity responses — present and pushed on the feature branch; merge and full regression remain
 - [~] Exact leading `Theaa:` / `Thea:` reply cleanup — present and pushed on the feature branch; merge remains
 
@@ -358,6 +358,87 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 - [~] Existing Command Parity in progress — compatibility foundation and compact `serverinfo` are pushed and remotely verified; native legacy-command conversion remains
 
 # 13. Feature History
+
+## 2026-07-29 — Owner-DM-Only AI
+
+**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`  
+**Branch:** `feature/image-understanding`
+
+### Product direction
+
+Theaa now operates as a conventional command-based Discord bot in servers. AI remains available only inside direct messages from the configured developer account.
+
+### Server behavior
+
+- Twenty normal guild slash commands are deployed.
+- Exact prefix commands remain supported.
+- Bot mentions do not start AI conversations.
+- Replies to Theaa do not start AI conversations.
+- Natural-language command detection is disabled.
+- Server images and screenshots are not analyzed.
+- The server `/chat` command was deleted.
+- Server `/gif` and `/imagine` AI media commands were removed.
+- AutoMod still processes guild messages.
+
+### Owner-DM behavior
+
+- Only the configured developer account receives DM responses.
+- Every other user is silently ignored in DMs.
+- AI conversation remains.
+- Short-term conversation memory remains.
+- Image and screenshot understanding remains.
+- Images are interpreted using the existing conversation instead of resetting the discussion.
+- Adult-capable owner-DM conversation remains with prohibited-category safeguards.
+- Private `/siteimage`, `/nsfwimage`, and `/nsfwgif` commands remain registered globally for DMs.
+
+### Files
+
+Modified:
+
+- `deploy-commands.js`
+- `src/ai/context.js`
+- `src/ai/openrouter.js`
+- `src/ai/prompt/ownerDm.js`
+- `src/ai/providerManager.js`
+- `src/events/messagecreate.js`
+- `src/events/ownerDm.js`
+- `src/handlers/commandHandler.js`
+- `src/router/commandRegistry.js`
+
+Created:
+
+- `src/ai/attachments.js`
+- `src/ai/vision.js`
+- `src/commands/ai/nsfwgif.js`
+- `src/commands/ai/nsfwimage.js`
+- `src/commands/ai/siteimage.js`
+- `src/utils/adultMediaSearch.js`
+- `src/utils/siteImages.js`
+
+Deleted:
+
+- `src/commands/ai/chat.js`
+
+### Verification
+
+- Package manifest verification passed.
+- JavaScript syntax checks passed.
+- Module imports resolved.
+- Focused Git diff check passed.
+- Twenty guild commands deployed.
+- Three private owner-DM commands deployed.
+- Server mention, reply, natural-language, and AI image routes were verified inactive.
+- Exact server prefix commands and normal slash commands were verified working.
+- Owner-DM AI conversation was verified working.
+- Owner-DM image behavior was verified working.
+- Code commit was pushed and remotely verified.
+
+### Known limitations
+
+- Owner-DM memory remains process-local and clears after restart.
+- Owner-DM AI depends on external model availability.
+- `src/data/prefixes.json` is runtime data and remains locally modified but intentionally uncommitted.
+- The feature branch still requires merging into `feature/existing-command-parity`.
 
 Add new entries at the top.
 

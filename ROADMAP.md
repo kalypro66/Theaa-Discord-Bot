@@ -1,20 +1,19 @@
 # Theaa Master Roadmap
 
-**Project:** Theaa — AI-first Discord assistant and server-management bot  
+**Project:** Theaa — Discord server-management bot with owner-only private AI  
 **Stack:** JavaScript, Node.js, discord.js  
 **Environment:** Android, Acode, Termux  
 **Repository:** `kalypro66/Theaa-Discord-Bot`  
-**Updated:** 2026-07-27
+**Updated:** 2026-07-29
 
 ## Vision
 
-Theaa should combine mature Discord management features with AI:
+Theaa should operate as a conventional Discord management bot in servers, with AI isolated to the verified owner's DMs:
 
-- Slash and prefix commands
-- Natural-language Discord control
-- AI conversation
-- Chat-versus-command detection
-- Image and screenshot understanding
+- Slash and exact prefix commands in servers
+- No server AI, natural-language commands, mention chat, or reply chat
+- Owner-only private AI conversation
+- Owner-only image and screenshot understanding
 - Emoji and sticker understanding
 - File, audio, and video understanding
 - Persistent user and server memory
@@ -301,7 +300,7 @@ Add:
 - [x] One message dispatcher
 - [x] Prevent double responses from separate message listeners
 - [x] Prefix detection
-- [x] Mention and reply detection
+- [x] Server mention/reply AI routing removed; owner-DM routing preserved
 - [ ] Configured AI channels
 - [ ] Disabled channels
 - [x] Owner-only safe DM behavior; unauthorized DMs are silently ignored
@@ -315,8 +314,8 @@ Add:
 - [ ] Entity extraction
 - [ ] Destructive and ambiguity flags
 - [ ] Confirmation rules
-- [~] Deterministic obvious-command detection — local routing prototype added
-- [ ] AI fallback classification
+- [x] Server natural-language command detection removed by product decision
+- [x] Server AI intent classification removed by product decision
 - [ ] Conversation, question, Discord action, memory, reminder, and attachment detection
 - [ ] False-command regression tests
 
@@ -491,7 +490,7 @@ Add:
 9. [x] Add shared embed defaults and migrate existing command embeds
 10. [x] Add paginated Previous/Next navigation to the help overview
 11. [~] Convert every existing command to shared multi-entry action parity — compatibility routing now covers registered legacy commands on the feature branch; 12 moderation commands still need native shared actions
-12. [~] Natural-language routing is structurally available for all 21 registered commands and manually verified for `serverinfo`; command-by-command regression remains
+12. [x] Server natural-language routing removed by product decision; exact slash and prefix commands remain
 
 ## 2026-07-27 Remote Parity Foundation Verification
 
@@ -508,7 +507,7 @@ Committed and remotely verified on `feature/existing-command-parity` at `5b88d8b
 
 Custom emojis remain postponed.
 
-Exact next task: add shared permission and hierarchy validation, then convert the 12 remaining legacy moderation commands to native shared actions and run command-by-command parity regression.
+Exact next task: resume shared permission and hierarchy validation, then convert the remaining legacy moderation commands to native shared actions and run command-by-command parity regression.
 
 # Completion Report
 
@@ -549,3 +548,26 @@ Known limitations:
 - Conversation memory is process-local and clears whenever the bot restarts.
 - Purge cannot bulk-delete messages older than Discord's fourteen-day limit.
 - The feature branch must be merged back into `feature/existing-command-parity` before parity work resumes.
+
+# Feature Record — Owner-DM-Only AI
+
+**Date:** 2026-07-29  
+**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`  
+**Branch:** `feature/image-understanding`
+
+Completed:
+
+- Removed AI conversation, image analysis, mention chat, reply chat, and natural-language command routing from servers.
+- Removed the server `/chat` command.
+- Retained normal guild slash commands.
+- Retained exact prefix commands.
+- Preserved AutoMod processing in servers.
+- Preserved the complete verified owner-only DM system.
+- Preserved owner-DM conversation memory, image understanding, adult conversation, image continuity, and private media commands.
+- Unauthorized DMs remain silently ignored.
+- Deployment now registers 20 guild commands and 3 private owner-DM media commands.
+
+Next task:
+
+- Merge this branch into `feature/existing-command-parity`.
+- Resume shared permission and role-hierarchy validation.
