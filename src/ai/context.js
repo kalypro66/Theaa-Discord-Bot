@@ -71,6 +71,46 @@ function formatHistoryEntry(
     };
 }
 
+function buildUserMessageContent(
+    context
+)
+{
+    const images =
+        Array.isArray(
+            context.images
+        )
+            ? context.images.filter(image => image?.url)
+            : [];
+
+    const text =
+        `${context.username}:
+
+${context.message}`;
+
+    if (!images.length)
+        return text;
+
+    return [
+        {
+            type:
+                "text",
+            text:
+                `${text}
+
+Attached image count: ${images.length}.
+Describe or help with the attached image(s) when relevant.`
+        },
+        ...images.map(image => ({
+            type:
+                "image_url",
+            image_url: {
+                url:
+                    image.url
+            }
+        }))
+    ];
+}
+
 function buildMessages(
     context
 )
@@ -154,6 +194,17 @@ use it instead of guessing.
         });
     }
 
+    if (Array.isArray(context.images) && context.images.length)
+    {
+        messages.push({
+            role:
+                "system",
+
+            content:
+                `IMAGE MODE\n\nThe user attached ${context.images.length} image(s). Analyze the image(s) directly. If the user asks what is in the picture, describe what you can actually observe. If text inside the image is readable, you may mention it. If something is unclear, say that it is unclear instead of guessing.`
+        });
+    }
+
     for (const entry of history)
     {
         messages.push(
@@ -168,9 +219,9 @@ use it instead of guessing.
             "user",
 
         content:
-`${context.username}:
-
-${context.message}`
+            buildUserMessageContent(
+                context
+            )
     });
 
     return messages;

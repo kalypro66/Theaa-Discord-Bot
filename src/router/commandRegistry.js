@@ -86,6 +86,10 @@ function loadCommands()
         fs.readdirSync(commandsPath)
     )
     {
+        // THEAA_SERVER_AI_FOLDER_DISABLED
+        if (folder === "ai")
+            continue;
+
         const folderPath =
             path.join(
                 commandsPath,
@@ -125,6 +129,10 @@ function loadCommands()
             {
                 continue;
             }
+
+            // THEAA_OWNER_DM_ONLY_COMMAND
+            if (command.ownerDmOnly)
+                continue;
 
             const defaults =
                 getCommandDefaults(

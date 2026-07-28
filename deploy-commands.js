@@ -1,53 +1,135 @@
-const { REST, Routes } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
+const {
+    REST,
+    Routes
+} = require("discord.js");
 
-const commands = [];
+const fs = require("node:fs");
+const path = require("node:path");
 
-const commandsPath = path.join(__dirname, 'src', 'commands');
-const commandItems = fs.readdirSync(commandsPath);
+require("dotenv").config();
 
-for (const item of commandItems) {
+const OWNER_DM_AI_FILES =
+    new Set([
+        "siteimage.js",
+        "nsfwimage.js",
+        "nsfwgif.js"
+    ]);
 
-    const itemPath = path.join(commandsPath, item);
-    const stat = fs.statSync(itemPath);
+function loadCommands()
+{
+    const commands = [];
 
-    if (stat.isDirectory()) {
+    const commandsPath =
+        path.join(
+            __dirname,
+            "src",
+            "commands"
+        );
 
-        const commandFiles = fs.readdirSync(itemPath)
-            .filter(file => file.endsWith('.js'));
+    for (
+        const folder of
+        fs.readdirSync(
+            commandsPath
+        )
+    )
+    {
+        const folderPath =
+            path.join(
+                commandsPath,
+                folder
+            );
 
-        for (const file of commandFiles) {
+        if (
+            !fs.statSync(
+                folderPath
+            ).isDirectory()
+        )
+        {
+            continue;
+        }
 
-            const filePath = path.join(itemPath, file);
-            const command = require(filePath);
+        const files =
+            fs.readdirSync(
+                folderPath
+            )
+                .filter(file =>
+                    file.endsWith(
+                        ".js"
+                    )
+                )
+                .filter(file =>
+                    folder !== "ai" ||
+                    OWNER_DM_AI_FILES.has(
+                        file
+                    )
+                );
 
-            if ('data' in command && 'execute' in command) {
-                commands.push(command.data.toJSON());
+        for (const file of files)
+        {
+            const command =
+                require(
+                    path.join(
+                        folderPath,
+                        file
+                    )
+                );
+
+            if (
+                command.data &&
+                typeof command.execute ===
+                    "function"
+            )
+            {
+                commands.push({
+                    folder,
+                    data:
+                        command.data.toJSON()
+                });
             }
-
         }
-
-    } else if (item.endsWith('.js')) {
-
-        const command = require(itemPath);
-
-        if ('data' in command && 'execute' in command) {
-            commands.push(command.data.toJSON());
-        }
-
     }
 
+    return commands;
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+const commands =
+    loadCommands();
 
-(async () => {
+const globalCommands =
+    commands
+        .filter(command =>
+            command.folder ===
+                "ai"
+        )
+        .map(command =>
+            command.data
+        );
 
-    try {
+const guildCommands =
+    commands
+        .filter(command =>
+            command.folder !==
+                "ai"
+        )
+        .map(command =>
+            command.data
+        );
 
-        console.log('Started refreshing application (/) commands.');
+const rest =
+    new REST({
+        version:
+            "10"
+    }).setToken(
+        process.env.TOKEN
+    );
+
+(async () =>
+{
+    try
+    {
+        console.log(
+            "Started refreshing application commands."
+        );
 
         await rest.put(
             Routes.applicationGuildCommands(
@@ -55,16 +137,36 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
                 process.env.GUILD_ID
             ),
             {
-                body: commands
+                body:
+                    guildCommands
             }
         );
 
-        console.log('Successfully reloaded application (/) commands.');
+        console.log(
+            `Reloaded ${guildCommands.length} guild command(s).`
+        );
 
-    } catch (error) {
+        await rest.put(
+            Routes.applicationCommands(
+                process.env.CLIENT_ID
+            ),
+            {
+                body:
+                    globalCommands
+            }
+        );
 
-        console.error(error);
-
+        console.log(
+            `Reloaded ${globalCommands.length} owner-DM command(s).`
+        );
     }
+    catch (error)
+    {
+        console.error(
+            error
+        );
 
+        process.exitCode =
+            1;
+    }
 })();

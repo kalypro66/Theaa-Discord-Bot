@@ -1,57 +1,20 @@
 const processAutomod =
     require("../automod/processMessage");
 
-const dispatcher =
-    require("../dispatcher/dispatcher");
-
-const discordBrain =
-    require("../discord/discordBrain");
-
 const {
     getPrefix
 } = require("../discord/prefixManager");
 
 const {
-    startTyping
-} = require("../utils/typingIndicator");
+    findCommand
+} = require("../router/commandRegistry");
+
+const executeCommand =
+    require("../router/executeCommand");
 
 const {
     handleOwnerDm
 } = require("./ownerDm");
-
-async function isReplyToBot(
-    message,
-    botId
-)
-{
-    const messageId =
-        message.reference?.messageId;
-
-    if (!messageId)
-        return false;
-
-    try
-    {
-        const repliedMessage =
-            await message.channel.messages.fetch(
-                messageId
-            );
-
-        return (
-            repliedMessage.author.id ===
-            botId
-        );
-    }
-    catch (error)
-    {
-        console.error(
-            "[Message Dispatcher] Failed to fetch replied message:",
-            error
-        );
-
-        return false;
-    }
-}
 
 module.exports = {
     name:
@@ -71,179 +34,81 @@ module.exports = {
             return;
         }
 
-        /*
-        --------------------------------
-        Identify Theaa interactions
-        --------------------------------
-        */
-
-        const botId =
-            message.client.user.id;
-
         const prefix =
-            getPrefix(
-                message.guild.id
-            );
-
-        const mentioned =
-            message.mentions.users.has(
-                botId
-            );
-
-        const repliedToBot =
-            await isReplyToBot(
-                message,
-                botId
+            String(
+                getPrefix(
+                    message.guild.id
+                ) || ""
             );
 
         const isPrefixCommand =
+            Boolean(prefix) &&
             message.content.startsWith(
                 prefix
             );
-
-        const isBotInteraction =
-            isPrefixCommand ||
-            mentioned ||
-            repliedToBot;
-
-        /*
-        --------------------------------
-        AutoMod runs before routing
-
-        Direct Theaa interactions still
-        pass link/invite/mention checks,
-        but do not count as spam.
-        --------------------------------
-        */
 
         const blocked =
             await processAutomod(
                 message,
                 {
                     skipSpam:
-                        isBotInteraction
+                        isPrefixCommand
                 }
             );
 
-        if (blocked)
-            return;
-
         if (
-            !isPrefixCommand &&
-            !mentioned &&
-            !repliedToBot
+            blocked ||
+            !isPrefixCommand
         )
         {
             return;
         }
 
-        /*
-        --------------------------------
-        Prepare message content
-        --------------------------------
-        */
-
-        let content =
-            message.content;
-
-        if (isPrefixCommand)
-        {
-            content =
-                content
-                    .slice(
-                        prefix.length
-                    )
-                    .trim();
-        }
-        else
-        {
-            content =
-                content
-                    .replace(
-                        new RegExp(
-                            `<@!?${botId}>`,
-                            "g"
-                        ),
-                        ""
-                    )
-                    .trim();
-        }
+        const content =
+            message.content
+                .slice(
+                    prefix.length
+                )
+                .trim();
 
         if (!content)
-        {
-            content =
-                "Hello!";
-        }
+            return;
 
-        const stopTyping =
-            startTyping(
-                message.channel
+        const [commandName, ...args] =
+            content.split(/\s+/);
+
+        const command =
+            findCommand(
+                commandName
             );
+
+        if (!command)
+            return;
 
         try
         {
-            const discordContext =
-                await discordBrain.getContext({
-                    message
-                });
-
-            const context = {
-                guildId:
-                    message.guild.id,
-
-                memoryKey:
-                    `guild:${message.guild.id}:channel:${message.channel.id}:user:${message.author.id}`,
-
-                userId:
-                    message.author.id,
-
-                username:
-                    message.member?.displayName ||
-                    message.author.username,
-
-                channelId:
-                    message.channel.id,
-
-                channelName:
-                    message.channel.name ||
-                    "unknown",
-
-                botName:
-                    message.client.user.username,
-
-                prefix,
-
-                message:
-                    content,
-
-                discordContext
-            };
-
-            await dispatcher({
+            await executeCommand(
                 message,
-                context
-            });
+                command,
+                args
+            );
         }
         catch (error)
         {
             console.error(
-                "[Message Dispatcher]",
+                "[Prefix Command]",
                 error
             );
 
             await message.reply({
                 content:
-                    "Something went wrong while talking to Theaa.",
+                    "Something went wrong while running that command.",
 
                 allowedMentions: {
                     repliedUser:
                         false
                 }
             }).catch(() => {});
-        }
-        finally
-        {
-            stopTyping();
         }
     }
 };
