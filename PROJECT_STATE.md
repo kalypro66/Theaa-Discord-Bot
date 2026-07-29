@@ -1,9 +1,9 @@
 # Theaa Project State
 
-**Purpose:** Permanent technical memory for Theaa  
-**Repository:** `kalypro66/Theaa-Discord-Bot`  
-**Environment:** Android, Acode, Termux  
-**Stack:** JavaScript, Node.js, discord.js  
+**Purpose:** Permanent technical memory for Theaa
+**Repository:** `kalypro66/Theaa-Discord-Bot`
+**Environment:** Android, Acode, Termux
+**Stack:** JavaScript, Node.js, discord.js
 **Updated:** 2026-07-29
 
 # 1. Mandatory Procedure
@@ -361,7 +361,7 @@ We may reproduce useful capabilities from bots such as Carl-bot and Dyno, but mu
 
 ## 2026-07-29 — Owner-DM-Only AI
 
-**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`  
+**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`
 **Branch:** `feature/image-understanding`
 
 ### Product direction

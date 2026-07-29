@@ -1,8 +1,8 @@
 # Theaa ChatGPT Handoff
 
-Repository: `kalypro66/Theaa-Discord-Bot`  
-Environment: Android, Acode, Termux  
-Stack: JavaScript, Node.js, discord.js  
+Repository: `kalypro66/Theaa-Discord-Bot`
+Environment: Android, Acode, Termux
+Stack: JavaScript, Node.js, discord.js
 Updated: 2026-07-29
 
 ## Read First

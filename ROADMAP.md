@@ -1,9 +1,9 @@
 # Theaa Master Roadmap
 
-**Project:** Theaa — Discord server-management bot with owner-only private AI  
-**Stack:** JavaScript, Node.js, discord.js  
-**Environment:** Android, Acode, Termux  
-**Repository:** `kalypro66/Theaa-Discord-Bot`  
+**Project:** Theaa — Discord server-management bot with owner-only private AI
+**Stack:** JavaScript, Node.js, discord.js
+**Environment:** Android, Acode, Termux
+**Repository:** `kalypro66/Theaa-Discord-Bot`
 **Updated:** 2026-07-29
 
 ## Vision
@@ -551,8 +551,8 @@ Known limitations:
 
 # Feature Record — Owner-DM-Only AI
 
-**Date:** 2026-07-29  
-**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`  
+**Date:** 2026-07-29
+**Code commit:** `0b1fa0025e2c23eeb1e695e0d5ed4936ba365ed3`
 **Branch:** `feature/image-understanding`
 
 Completed:
